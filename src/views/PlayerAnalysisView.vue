@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApiErrorStore } from '../stores/apiError'
 import { getPlayer, searchPlayers, LALIGA2_LEAGUE_ID } from '../services/footballApi'
+import { getPlayerFromTheSportsDB } from '../services/thesportsdb'
 import type { ApiPlayerResponse, PlayersSearchResponse } from '../services/footballApi'
 
 const route = useRoute()
@@ -33,11 +34,21 @@ onMounted(async () => {
 
   try {
     if (id && !isNaN(id)) {
-      const res = await getPlayer(id, season.value)
+      let res = await getPlayer(id, season.value)
       if (res.response?.length) {
         data.value = res
         loading.value = false
         return
+      }
+      try {
+        res = await getPlayerFromTheSportsDB(id)
+        if (res.response?.length) {
+          data.value = res
+          loading.value = false
+          return
+        }
+      } catch {
+        // ignore – try name search next
       }
     }
     if (name.length >= 4) {
@@ -84,6 +95,13 @@ function show(val: string | number | null | undefined): string {
   if (val === null || val === undefined || val === '') return '—'
   return String(val)
 }
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  if (parts[0]?.length >= 2) return parts[0].slice(0, 2).toUpperCase()
+  return parts[0]?.[0]?.toUpperCase() ?? '?'
+}
 </script>
 
 <template>
@@ -96,11 +114,13 @@ function show(val: string | number | null | undefined): string {
     <template v-else-if="p">
       <header class="player-header">
         <img
+          v-if="p.photo"
           :src="p.photo"
           :alt="p.name"
           class="photo"
-          @error="(e) => (e.currentTarget!.src = '')"
+          @error="(e) => (e.currentTarget!.style.display = 'none')"
         />
+        <div v-else class="photo photo-placeholder" :aria-label="p.name">{{ initials(p.name) }}</div>
         <div class="info">
           <h1>{{ p.name }}</h1>
           <p v-if="p.display_name && p.display_name !== p.name" class="meta">
@@ -268,6 +288,15 @@ function show(val: string | number | null | undefined): string {
   object-fit: contain;
   border-radius: 12px;
   background: var(--color-background-mute);
+}
+.photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: var(--color-text);
+  opacity: 0.9;
 }
 .info h1 {
   font-size: 1.75rem;
