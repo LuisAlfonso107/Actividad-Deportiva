@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configuración | Kaboomfot Football Recruitment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&amp;family=Outfit:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --primary: #10b981;
+                --secondary: #0f172a;
+                --background-light: #f8fafc;
+                --background-dark: #020617;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#10b981",
+                        secondary: "#0f172a",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#020617",
+                    },
+                    fontFamily: {
+                        display: ["Outfit", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="font-body bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300">
+<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<a href="index.html" class="flex-shrink-0 flex items-center gap-2">
+<span class="text-2xl font-black font-display tracking-tighter text-secondary dark:text-white uppercase">Kaboom<span class="text-primary">fot</span></span>
+</a>
+<div class="flex items-center space-x-6">
+<a href="favoritos.html" class="text-slate-400 hover:text-primary transition-colors flex items-center justify-center p-2">
+<span class="material-symbols-outlined">favorite</span>
+</a>
+<a href="config-perfil.html" class="flex items-center gap-2 bg-primary/10 p-1 pr-3 rounded-full hover:bg-primary/20 transition-colors border border-primary/20">
+<span class="material-symbols-outlined text-3xl text-primary filled">account_circle</span>
+<span class="text-sm font-semibold hidden md:block text-secondary dark:text-white">Mi Perfil</span>
+</a>
+</div>
+</div>
+</div>
+<nav class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-12">
+<div class="flex space-x-8 h-full">
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors h-full flex items-center" href="jugadores.html">JUGADORES</a>
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors h-full flex items-center" href="mercado.html">MERCADO</a>
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors h-full flex items-center" href="noticias.html">NOTICIAS</a>
+</div>
+<div class="flex items-center space-x-4">
+<a class="text-sm font-semibold text-primary flex items-center gap-2" href="config-perfil.html">
+                        CONFIGURACIÓN
+                        <span class="material-symbols-outlined text-lg filled">settings</span>
+</a>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="mb-10">
+<nav class="flex mb-4 text-xs font-bold text-slate-400 uppercase gap-2">
+<a class="hover:text-primary transition-colors" href="index.html">Inicio</a>
+<span>/</span>
+<span class="text-primary">Configuración</span>
+</nav>
+<h1 class="text-4xl font-display font-black text-secondary dark:text-white uppercase tracking-tight">Configuración de <span class="text-primary">Cuenta</span></h1>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+<aside class="lg:col-span-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/20 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Perfil de Usuario</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span>Notificaciones</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all" href="#">
+<span class="material-symbols-outlined">security</span>
+<span>Seguridad</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all" href="#">
+<span class="material-symbols-outlined">card_membership</span>
+<span>Suscripción</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span>Privacidad</span>
+</a>
+</aside>
+<div class="lg:col-span-3 space-y-8">
+<section class="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-800">
+<h2 class="text-xl font-black font-display text-secondary dark:text-white mb-8 uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">person_edit</span>
+                    Perfil de Usuario
+                </h2>
+<div class="space-y-8">
+<div class="flex items-center gap-6">
+<div class="relative">
+<img alt="Profile" class="w-24 h-24 rounded-full object-cover border-4 border-slate-100 dark:border-slate-800 shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqWh3c7NOqAVVDyMFBgJTT7lUurioXHtJ9Prx7WilLUBcsnKEPRg-_pYKyDYu5K9O19MWDdVfgIgxvSTqE-UKhQOGBe50808yMbuGLCT-44BnJZ8rtzgk0zXqgZqkJnoegF1J22H8hozxsMg3GLC_rAbZnZfn7V2pj_rPE8ImiG821DRGCskYNwkqDUnfehzb5BkxwxaJ5opviyMKVPgLm4Y7FP-W2Oq3pJ_q408Dsj4s1PPUPBfahuSvChkfzaflKmKuqNDPVokg"/>
+<button class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-sm">photo_camera</span>
+</button>
+</div>
+<div>
+<p class="font-bold text-lg">Tu Foto de Perfil</p>
+<p class="text-sm text-slate-500 mb-2">PNG o JPG. Máximo 2MB.</p>
+<div class="flex gap-2">
+<button class="text-xs font-bold text-primary px-4 py-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">Subir Nueva</button>
+<button class="text-xs font-bold text-red-500 px-4 py-2 hover:bg-red-50 rounded-lg transition-colors">Eliminar</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase px-1">Nombre Completo</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm" type="text" value="Javier Rodríguez"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase px-1">Email de Contacto</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm" type="email" value="javier.rodriguez@example.com"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase px-1">Teléfono</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm" type="tel" value="+34 600 000 000"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase px-1">Región / Comunidad</label>
+<select class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm">
+<option>Madrid</option>
+<option>Cataluña</option>
+<option>Andalucía</option>
+<option>Valencia</option>
+<option>País Vasco</option>
+</select>
+</div>
+</div>
+<div class="space-y-4">
+<label class="text-xs font-bold text-slate-500 uppercase px-1">Tipo de Perfil</label>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<label class="relative flex items-center p-4 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer">
+<input checked="" class="hidden" name="profile_type" type="radio"/>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary filled">search_check</span>
+<div>
+<p class="font-bold text-sm">Scout</p>
+<p class="text-[10px] text-slate-500">Busco talentos</p>
+</div>
+</div>
+<span class="material-symbols-outlined absolute top-2 right-2 text-primary text-sm filled">check_circle</span>
+</label>
+<label class="relative flex items-center p-4 border-2 border-slate-100 dark:border-slate-800 rounded-2xl cursor-pointer hover:border-slate-200 transition-all">
+<input class="hidden" name="profile_type" type="radio"/>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">handshake</span>
+<div>
+<p class="font-bold text-sm">Agente</p>
+<p class="text-[10px] text-slate-500">Represento jugadores</p>
+</div>
+</div>
+</label>
+<label class="relative flex items-center p-4 border-2 border-slate-100 dark:border-slate-800 rounded-2xl cursor-pointer hover:border-slate-200 transition-all">
+<input class="hidden" name="profile_type" type="radio"/>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">shield</span>
+<div>
+<p class="font-bold text-sm">Club</p>
+<p class="text-[10px] text-slate-500">Gestión de equipo</p>
+</div>
+</div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-800">
+<h2 class="text-xl font-black font-display text-secondary dark:text-white mb-8 uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+                    Preferencias de Notificación
+                </h2>
+<div class="space-y-6">
+<div class="flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0">
+<div>
+<p class="font-bold">Alertas de Mercado</p>
+<p class="text-sm text-slate-500">Notificaciones sobre cambios de valor o fichajes de jugadores seguidos.</p>
+</div>
+<button class="w-12 h-6 bg-primary rounded-full relative transition-colors">
+<div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+<div class="flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0">
+<div>
+<p class="font-bold">Nuevos Mensajes</p>
+<p class="text-sm text-slate-500">Recibe un aviso cuando un club o agente te envíe un mensaje directo.</p>
+</div>
+<button class="w-12 h-6 bg-slate-200 dark:bg-slate-700 rounded-full relative transition-colors">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+<div class="flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0">
+<div>
+<p class="font-bold">Informes Semanales</p>
+<p class="text-sm text-slate-500">Resumen por email con los mejores talentos detectados en tu zona.</p>
+</div>
+<button class="w-12 h-6 bg-primary rounded-full relative transition-colors">
+<div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+</div>
+</section>
+<div class="flex justify-end gap-4">
+<button class="px-8 py-3 rounded-xl font-bold text-slate-500 hover:text-secondary transition-colors uppercase text-sm">Descartar</button>
+<button class="px-10 py-3 bg-secondary dark:bg-slate-100 dark:text-secondary text-white rounded-xl font-black hover:bg-primary hover:text-white transition-all shadow-lg shadow-secondary/10 uppercase text-sm tracking-wide">Guardar Cambios</button>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 mt-20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div>
+<a href="index.html">
+<span class="text-2xl font-black font-display tracking-tighter text-secondary dark:text-white uppercase">KABOOM<span class="text-primary">FOT</span></span>
+</a>
+<p class="text-slate-500 text-sm mt-2">© 2024 Kaboomfot Recruitment S.L. Todos los derechos reservados.</p>
+</div>
+<div class="flex gap-8 text-sm font-semibold text-slate-500">
+<a class="hover:text-primary" href="#">Privacidad</a>
+<a class="hover:text-primary" href="#">Términos</a>
+<a class="hover:text-primary" href="#">Contacto</a>
+<a class="hover:text-primary" href="#">Publicidad</a>
+</div>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+</div>
+</div>
+</div>
+</footer>
+
+</body></html>

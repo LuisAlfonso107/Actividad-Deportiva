@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kaboomfot | Directorio de Jugadores</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&amp;family=Outfit:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --primary: #10b981;
+            --secondary: #0f172a;
+            --background-light: #f8fafc;
+            --background-dark: #020617;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @layer base {
+            body {
+                @apply font-body bg-slate-50 text-slate-900;
+            }
+            .font-display { font-family: 'Outfit', sans-serif; }
+            .font-body { font-family: 'Inter', sans-serif; }
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#10b981",
+                        secondary: "#0f172a",
+                    },
+                    fontFamily: {
+                        display: ["Outfit", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-[#f8fafc]">
+<header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+<div class="max-w-[1440px] mx-auto px-6">
+<div class="flex justify-between items-center h-16">
+<a href="index.html" class="flex-shrink-0 flex items-center gap-2">
+<span class="text-2xl font-black font-display tracking-tighter text-secondary">KABOOM<span class="text-primary">FOT</span></span>
+</a>
+<div class="flex items-center space-x-6">
+<a href="favoritos.html" class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</a>
+<a href="config-perfil.html" class="flex items-center gap-2 bg-slate-100 p-1 pr-3 rounded-full hover:bg-slate-200 transition-colors border border-slate-200">
+<span class="material-symbols-outlined text-3xl text-secondary">account_circle</span>
+<span class="text-sm font-bold">Mi Perfil</span>
+</a>
+</div>
+</div>
+</div>
+<nav class="bg-white border-b border-slate-200">
+<div class="max-w-[1440px] mx-auto px-6">
+<div class="flex justify-between items-center h-12">
+<div class="flex space-x-8 h-full">
+<a class="text-sm font-bold text-primary border-b-2 border-primary h-full flex items-center" href="jugadores.html">JUGADORES</a>
+<a class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors h-full flex items-center" href="mercado.html">MERCADO</a>
+<a class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors h-full flex items-center" href="noticias.html">NOTICIAS</a>
+</div>
+<div class="flex items-center space-x-4">
+<a class="text-sm font-semibold text-slate-500 flex items-center gap-2 hover:text-primary transition-colors" href="config-perfil.html">
+                            CONFIGURACIÓN
+                            <span class="material-symbols-outlined text-lg">settings</span>
+</a>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="bg-white border-b border-slate-200 shadow-sm sticky top-[113px] z-40">
+<div class="max-w-[1440px] mx-auto px-6 py-4">
+<div class="grid grid-cols-5 gap-4">
+<div class="space-y-1">
+<label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Posición</label>
+<select class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+<option>Todas las posiciones</option>
+<option>Portero</option>
+<option>Defensa</option>
+<option>Centrocampista</option>
+<option>Delantero</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Edad</label>
+<select class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+<option>Cualquier edad</option>
+<option>Sub-17</option>
+<option>Sub-19</option>
+<option>Sub-21</option>
+<option>Senior</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Categoría</label>
+<select class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+<option>Todas las categorías</option>
+<option>LaLiga EA Sports</option>
+<option>Segunda División</option>
+<option>Primera RFEF</option>
+<option>División de Honor</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Provincia</label>
+<select class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+<option>Toda España</option>
+<option>Madrid</option>
+<option>Barcelona</option>
+<option>Valencia</option>
+<option>Sevilla</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Rango de Precio</label>
+<select class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+<option>Cualquiera</option>
+<option>Libre</option>
+<option>Hasta €50k</option>
+<option>€50k - €200k</option>
+<option>Más de €200k</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<main class="max-w-[1440px] mx-auto px-6 py-8 flex gap-8">
+<aside class="w-64 flex-shrink-0 space-y-8">
+<section>
+<h3 class="text-sm font-black uppercase tracking-tight mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">fitness_center</span>
+                    Atributos Físicos
+                </h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs font-bold mb-1">
+<span>Velocidad</span>
+<span class="text-primary">80+</span>
+</div>
+<input class="w-full accent-primary" max="100" min="0" type="range" value="80"/>
+</div>
+<div>
+<div class="flex justify-between text-xs font-bold mb-1">
+<span>Resistencia</span>
+<span class="text-primary">75+</span>
+</div>
+<input class="w-full accent-primary" max="100" min="0" type="range" value="75"/>
+</div>
+<div>
+<div class="flex justify-between text-xs font-bold mb-1">
+<span>Fuerza</span>
+<span class="text-primary">60+</span>
+</div>
+<input class="w-full accent-primary" max="100" min="0" type="range" value="60"/>
+</div>
+</div>
+</section>
+<section>
+<h3 class="text-sm font-black uppercase tracking-tight mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">footprint</span>
+                    Pie Dominante
+                </h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-semibold">Derecho</span>
+</label>
+<label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-semibold">Izquierdo</span>
+</label>
+<label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-semibold">Ambidiestro</span>
+</label>
+</div>
+</section>
+<div class="p-6 bg-secondary rounded-2xl text-white">
+<p class="text-xs font-bold text-primary uppercase mb-2">Tip de Scout</p>
+<p class="text-sm leading-relaxed opacity-80">Filtra por provincia para optimizar los costes de desplazamiento en tu scouting presencial.</p>
+</div>
+</aside>
+<div class="flex-grow">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h2 class="text-2xl font-black font-display uppercase tracking-tight">Directorio de Jugadores</h2>
+<p class="text-sm text-slate-500 font-medium">842 talentos encontrados en España</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm font-bold text-slate-400">Ordenar por:</span>
+<select class="border-none bg-transparent font-bold text-sm focus:ring-0 text-secondary">
+<option>Más recientes</option>
+<option>Mayor valoración</option>
+<option>Menor edad</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Carlos Ruiz" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfQ0TeKyGHGea7FsCmye-ZojlO9wVzU4p2KDI3YMihDB13ibgYkHva5hhWUieH9fKy9ri0V41FmsgtMyVxhCR5zQzGDWrGJJoIi73ataQqMbVt0fO8wnbIuR5G8SxZ356tpKBsQO2XdHwgVpW7umsIVPnBmmmF3srd-56AEwWfzt3ohP7kGoXsvDxW6xd3ZXh_gsVKk2u686J3Z2YeWon1niq-wvHYfKn1VmKeiQ9eTi9uSAfy1fEAc_Mmcwx4IKu1iVmYzQVOMVM"/>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="bg-primary text-white text-[10px] font-black px-2 py-1 rounded uppercase shadow-lg">Sub-19</span>
+<span class="bg-secondary/80 backdrop-blur-md text-white text-[10px] font-black px-2 py-1 rounded uppercase shadow-lg">Destacado</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<h3 class="text-white font-black text-2xl leading-none mb-1">CARLOS RUIZ</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<p class="text-primary font-bold text-sm uppercase">Mediapunta</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Club Actual</span>
+<span class="font-bold text-sm text-secondary">Real Betis B</span>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-5">
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Goles</span>
+<span class="font-black text-lg text-secondary">12</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Asist.</span>
+<span class="font-black text-lg text-secondary">8</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Min</span>
+<span class="font-black text-lg text-secondary">1.2k</span>
+</div>
+</div>
+<a href="detallesjugadores.html" class="w-full block text-center bg-slate-50 text-secondary hover:bg-primary hover:text-white border border-slate-200 hover:border-primary font-black py-3 rounded-xl transition-all text-sm uppercase tracking-wide">
+                            Ver Informe Completo
+                        </a>
+</div>
+</div>
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Marc Serra" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiIub-Ykm0A07nqJ4vInExYIc6qKs3yQjnDN7xpSCen60dV7YeiqLBBNt0-OFtUGxISseWrAdz0UQn9Hbu-UcqBI9xbUPJWQqX4n_VQbYE-ChFhcFg5KFNjTTcJrCiatPnsorsUZTTDX0-xxFhZyOFBtZ97kCxTxXfRA7l3lzr0PvjqkMA3sovJYDsDz4cTh8kPdJbUqu1nDTYCkzWOHFbQ4VzTipwPcSM0LlL8lTZSGhZZon87z2BszvOr6CHFgbJUPra2oi0dHc"/>
+<div class="absolute top-4 left-4">
+<span class="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase shadow-lg">Libre</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<h3 class="text-white font-black text-2xl leading-none mb-1">MARC SERRA</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<p class="text-primary font-bold text-sm uppercase">Central</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Procedencia</span>
+<span class="font-bold text-sm text-secondary">CF Damm</span>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-5">
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Altura</span>
+<span class="font-black text-lg text-secondary">1.92</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Duelos</span>
+<span class="font-black text-lg text-secondary">84%</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Vel</span>
+<span class="font-black text-lg text-secondary">32kmh</span>
+</div>
+</div>
+<a href="detallesjugadores.html" class="w-full block text-center bg-slate-50 text-secondary hover:bg-primary hover:text-white border border-slate-200 hover:border-primary font-black py-3 rounded-xl transition-all text-sm uppercase tracking-wide">
+                            Ver Informe Completo
+                        </a>
+</div>
+</div>
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Kevin Diaz" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI6OKJT2q69fpQgm-29XghlsSd5w5QlaBQgBfavNawo8oA2AwzNgA36oj-JClfm81_t8LcCMjHWDVQx_exD296ONfC_0G4WZY4r0So3v0sGfKnzzzkaH5qcGDJzdofx3G2ox_Hk767-IlXeJnuBp67RSA7Vye6Cc7fayWbIvYsL3J8pmSPkGdO1oiXHk433-n9a6rzu0DLJ6Hzbt87QElynojKE8Awb6qkobb7kYVdtkQt9SJE149cKc5ISSCIeG7OIF4m86C4xU0"/>
+<div class="absolute top-4 left-4">
+<span class="bg-secondary text-white text-[10px] font-black px-2 py-1 rounded uppercase shadow-lg border border-white/20">Pro</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<h3 class="text-white font-black text-2xl leading-none mb-1">KEVIN DIAZ</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<p class="text-primary font-bold text-sm uppercase">Portero</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Club Actual</span>
+<span class="font-bold text-sm text-secondary">Levante UD</span>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-5">
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">C. Sheet</span>
+<span class="font-black text-lg text-secondary">15</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Paradas</span>
+<span class="font-black text-lg text-secondary">102</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">J. Pie</span>
+<span class="font-black text-lg text-secondary">78%</span>
+</div>
+</div>
+<a href="detallesjugadores.html" class="w-full block text-center bg-slate-50 text-secondary hover:bg-primary hover:text-white border border-slate-200 hover:border-primary font-black py-3 rounded-xl transition-all text-sm uppercase tracking-wide">
+                            Ver Informe Completo
+                        </a>
+</div>
+</div>
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Ana Blanco" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLngSFXjB9H5f8pj0Uow_RZa78oq5Awad7-llCmpxNz3NgmfZAao2lVHoAXEEjQhl2NG2o3WBfGM60LdzppLIUc5wZe0UppthoCH-VCEbxH5PbKVWXK-PRs3V2_J7cC0FH7X5QY1V__Y06srUt44TN7ZReFs8ooOIsNZBMTtuxdamD-GLmT3XApy0sjGsZeY9nvG5THPAWr0NXYSUfzKsW-SCrISODahlxipRTwgkwo_4wwK5u8A_KFZWvsJ-9-m7QWxG7r3Lw2xA"/>
+<div class="absolute top-4 left-4">
+<span class="bg-pink-500 text-white text-[10px] font-black px-2 py-1 rounded uppercase shadow-lg">Femenino</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<h3 class="text-white font-black text-2xl leading-none mb-1">ANA BLANCO</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<p class="text-primary font-bold text-sm uppercase">Delantera</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Club Actual</span>
+<span class="font-bold text-sm text-secondary">At. Madrid</span>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-5">
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Goles</span>
+<span class="font-black text-lg text-secondary">18</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">Vel</span>
+<span class="font-black text-lg text-secondary">34kmh</span>
+</div>
+<div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+<span class="block text-[9px] text-slate-400 uppercase font-black">XG</span>
+<span class="font-black text-lg text-secondary">0.78</span>
+</div>
+</div>
+<a href="detallesjugadores.html" class="w-full block text-center bg-slate-50 text-secondary hover:bg-primary hover:text-white border border-slate-200 hover:border-primary font-black py-3 rounded-xl transition-all text-sm uppercase tracking-wide">
+                            Ver Informe Completo
+                        </a>
+</div>
+</div>
+</div>
+<div class="mt-12 flex justify-center">
+<nav class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center hover:bg-slate-100">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-xl bg-primary text-white font-black">1</button>
+<button class="w-10 h-10 rounded-xl border border-slate-200 font-bold hover:bg-slate-100">2</button>
+<button class="w-10 h-10 rounded-xl border border-slate-200 font-bold hover:bg-slate-100">3</button>
+<span class="px-2 text-slate-400 font-bold">...</span>
+<button class="w-10 h-10 rounded-xl border border-slate-200 font-bold hover:bg-slate-100">12</button>
+<button class="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center hover:bg-slate-100">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+</main>
+<footer class="bg-white border-t border-slate-200 py-12 mt-12">
+<div class="max-w-[1440px] mx-auto px-6">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div>
+<a href="index.html">
+<span class="text-2xl font-black font-display tracking-tighter text-secondary">KABOOM<span class="text-primary">FOT</span></span>
+</a>
+<p class="text-slate-400 text-sm mt-2">© 2024 Kaboomfot Recruitment S.L. Directorio Oficial de Jugadores.</p>
+</div>
+<div class="flex gap-8 text-sm font-bold text-slate-500">
+<a class="hover:text-primary transition-colors" href="#">Privacidad</a>
+<a class="hover:text-primary transition-colors" href="#">Términos de Uso</a>
+<a class="hover:text-primary transition-colors" href="#">Soporte Scout</a>
+<a class="hover:text-primary transition-colors" href="#">Contacto</a>
+</div>
+<div class="flex gap-4">
+<button class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-xl">share</span>
+</button>
+</div>
+</div>
+</div>
+</footer>
+
+</body></html>

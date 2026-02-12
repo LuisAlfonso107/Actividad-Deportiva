@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mercado | Kaboomfot Football Recruitment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&amp;family=Outfit:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --primary: #10b981;
+                --secondary: #0f172a;
+                --background-light: #f8fafc;
+                --background-dark: #020617;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#10b981",
+                        secondary: "#0f172a",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#020617",
+                    },
+                    fontFamily: {
+                        display: ["Outfit", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="font-body bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300">
+<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<a href="index.html" class="flex-shrink-0 flex items-center gap-2">
+<span class="text-2xl font-black font-display tracking-tighter text-secondary dark:text-white uppercase">Kaboom<span class="text-primary">fot</span></span>
+</a>
+<div class="flex items-center space-x-6">
+<a href="favoritos.html" class="text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</a>
+<a href="config-perfil.html" class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 pr-3 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-3xl text-secondary dark:text-white">account_circle</span>
+<span class="text-sm font-semibold hidden md:block">Mi Perfil</span>
+</a>
+</div>
+</div>
+</div>
+<nav class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-12">
+<div class="flex space-x-8 h-full">
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors h-full flex items-center" href="jugadores.html">JUGADORES</a>
+<a class="text-sm font-bold text-primary border-b-2 border-primary h-full flex items-center" href="mercado.html">MERCADO</a>
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors h-full flex items-center" href="noticias.html">NOTICIAS</a>
+</div>
+<div class="flex items-center space-x-4">
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2 hover:text-primary transition-colors" href="config-perfil.html">
+                        CONFIGURACIÓN
+                        <span class="material-symbols-outlined text-lg">settings</span>
+</a>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<section class="mb-8">
+<div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="flex flex-col lg:flex-row gap-4 items-end">
+<div class="w-full lg:w-1/4">
+<label class="block text-xs font-bold text-slate-400 uppercase mb-2">Edad</label>
+<select class="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm">
+<option>Cualquiera</option>
+<option>Sub-17</option>
+<option>Sub-19</option>
+<option>Sub-21</option>
+<option>Senior (21-25)</option>
+</select>
+</div>
+<div class="w-full lg:w-1/4">
+<label class="block text-xs font-bold text-slate-400 uppercase mb-2">Posición</label>
+<select class="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm">
+<option>Todas</option>
+<option>Portero</option>
+<option>Defensa</option>
+<option>Centrocampista</option>
+<option>Delantero</option>
+</select>
+</div>
+<div class="w-full lg:w-1/4">
+<label class="block text-xs font-bold text-slate-400 uppercase mb-2">Valor de Mercado</label>
+<select class="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm">
+<option>Cualquiera</option>
+<option>Gratis (Libre)</option>
+<option>Hasta 50k €</option>
+<option>50k € - 250k €</option>
+<option>+ 500k €</option>
+</select>
+</div>
+<div class="w-full lg:w-1/4">
+<label class="block text-xs font-bold text-slate-400 uppercase mb-2">Región (España)</label>
+<select class="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm">
+<option>Toda España</option>
+<option>Madrid</option>
+<option>Cataluña</option>
+<option>Andalucía</option>
+<option>Comunidad Valenciana</option>
+<option>País Vasco</option>
+</select>
+</div>
+<button class="w-full lg:w-auto bg-primary text-white font-bold py-2.5 px-8 rounded-xl hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                    FILTRAR
+                </button>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+<div class="lg:col-span-3">
+<div class="flex items-center justify-between mb-6">
+<h1 class="text-2xl font-display font-black text-secondary dark:text-white uppercase">Mercado de Transferencias</h1>
+<div class="text-sm text-slate-500 font-semibold">1,248 resultados encontrados</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+<div class="relative aspect-[4/3] overflow-hidden">
+<img alt="Player" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfQ0TeKyGHGea7FsCmye-ZojlO9wVzU4p2KDI3YMihDB13ibgYkHva5hhWUieH9fKy9ri0V41FmsgtMyVxhCR5zQzGDWrGJJoIi73ataQqMbVt0fO8wnbIuR5G8SxZ356tpKBsQO2XdHwgVpW7umsIVPnBmmmF3srd-56AEwWfzt3ohP7kGoXsvDxW6xd3ZXh_gsVKk2u686J3Z2YeWon1niq-wvHYfKn1VmKeiQ9eTi9uSAfy1fEAc_Mmcwx4IKu1iVmYzQVOMVM"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1">
+<span class="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase">Transferible</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+<div>
+<h3 class="text-white font-black text-lg leading-none drop-shadow-md">HUGO NAVARRO</h3>
+<p class="text-primary font-bold text-xs uppercase">Centrocampista</p>
+</div>
+<div class="bg-black/50 backdrop-blur-md p-2 rounded-lg text-white text-center min-w-[60px]">
+<p class="text-[8px] font-bold text-slate-300 uppercase">Edad</p>
+<p class="font-black text-sm leading-none">19</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-sm">location_on</span>
+<span class="text-xs font-bold text-slate-500 uppercase">Valencia</span>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-slate-400 font-bold uppercase">Precio Pedido</p>
+<p class="text-primary font-black text-lg leading-none">€180,000</p>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Club actual</span>
+<span class="font-bold">Levante UD B</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Estado</span>
+<span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold">Contrato hasta 2025</span>
+</div>
+</div>
+<button class="w-full bg-secondary dark:bg-slate-800 text-white hover:bg-primary hover:text-white font-bold py-3 rounded-xl transition-all text-sm uppercase">
+                            Consultar Interés
+                        </button>
+</div>
+</div>
+<div class="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+<div class="relative aspect-[4/3] overflow-hidden">
+<img alt="Player" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiIub-Ykm0A07nqJ4vInExYIc6qKs3yQjnDN7xpSCen60dV7YeiqLBBNt0-OFtUGxISseWrAdz0UQn9Hbu-UcqBI9xbUPJWQqX4n_VQbYE-ChFhcFg5KFNjTTcJrCiatPnsorsUZTTDX0-xxFhZyOFBtZ97kCxTxXfRA7l3lzr0PvjqkMA3sovJYDsDz4cTh8kPdJbUqu1nDTYCkzWOHFbQ4VzTipwPcSM0LlL8lTZSGhZZon87z2BszvOr6CHFgbJUPra2oi0dHc"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1">
+<span class="bg-primary text-white text-[10px] font-black px-2 py-1 rounded uppercase">Agente Libre</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+<div>
+<h3 class="text-white font-black text-lg leading-none drop-shadow-md">DAVID MARÍN</h3>
+<p class="text-primary font-bold text-xs uppercase">Defensa Central</p>
+</div>
+<div class="bg-black/50 backdrop-blur-md p-2 rounded-lg text-white text-center min-w-[60px]">
+<p class="text-[8px] font-bold text-slate-300 uppercase">Edad</p>
+<p class="font-black text-sm leading-none">23</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-sm">location_on</span>
+<span class="text-xs font-bold text-slate-500 uppercase">Madrid</span>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-slate-400 font-bold uppercase">Precio Pedido</p>
+<p class="text-primary font-black text-lg leading-none">GRATIS</p>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Último club</span>
+<span class="font-bold">Getafe B</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Estado</span>
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">Sin Equipo</span>
+</div>
+</div>
+<button class="w-full bg-secondary dark:bg-slate-800 text-white hover:bg-primary hover:text-white font-bold py-3 rounded-xl transition-all text-sm uppercase">
+                            Hacer Oferta
+                        </button>
+</div>
+</div>
+<div class="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+<div class="relative aspect-[4/3] overflow-hidden">
+<img alt="Player" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI6OKJT2q69fpQgm-29XghlsSd5w5QlaBQgBfavNawo8oA2AwzNgA36oj-JClfm81_t8LcCMjHWDVQx_exD296ONfC_0G4WZY4r0So3v0sGfKnzzzkaH5qcGDJzdofx3G2ox_Hk767-IlXeJnuBp67RSA7Vye6Cc7fayWbIvYsL3J8pmSPkGdO1oiXHk433-n9a6rzu0DLJ6Hzbt87QElynojKE8Awb6qkobb7kYVdtkQt9SJE149cKc5ISSCIeG7OIF4m86C4xU0"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1">
+<span class="bg-orange-500 text-white text-[10px] font-black px-2 py-1 rounded uppercase">Cedible</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+<div>
+<h3 class="text-white font-black text-lg leading-none drop-shadow-md">IZAN ORTIZ</h3>
+<p class="text-primary font-bold text-xs uppercase">Extremo</p>
+</div>
+<div class="bg-black/50 backdrop-blur-md p-2 rounded-lg text-white text-center min-w-[60px]">
+<p class="text-[8px] font-bold text-slate-300 uppercase">Edad</p>
+<p class="font-black text-sm leading-none">18</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-sm">location_on</span>
+<span class="text-xs font-bold text-slate-500 uppercase">Andalucía</span>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-slate-400 font-bold uppercase">Cesión</p>
+<p class="text-primary font-black text-lg leading-none">€30,000</p>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Club actual</span>
+<span class="font-bold">Sevilla FC C</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Estado</span>
+<span class="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-[10px] font-bold">Disponible Cesión</span>
+</div>
+</div>
+<button class="w-full bg-secondary dark:bg-slate-800 text-white hover:bg-primary hover:text-white font-bold py-3 rounded-xl transition-all text-sm uppercase">
+                            Solicitar Cesión
+                        </button>
+</div>
+</div>
+<div class="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+<div class="relative aspect-[4/3] overflow-hidden">
+<img alt="Player" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLngSFXjB9H5f8pj0Uow_RZa78oq5Awad7-llCmpxNz3NgmfZAao2lVHoAXEEjQhl2NG2o3WBfGM60LdzppLIUc5wZe0UppthoCH-VCEbxH5PbKVWXK-PRs3V2_J7cC0FH7X5QY1V__Y06srUt44TN7ZReFs8ooOIsNZBMTtuxdamD-GLmT3XApy0sjGsZeY9nvG5THPAWr0NXYSUfzKsW-SCrISODahlxipRTwgkwo_4wwK5u8A_KFZWvsJ-9-m7QWxG7r3Lw2xA"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1">
+<span class="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase">Transferible</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+<div>
+<h3 class="text-white font-black text-lg leading-none drop-shadow-md">ELENA ROIG</h3>
+<p class="text-primary font-bold text-xs uppercase">Delantera</p>
+</div>
+<div class="bg-black/50 backdrop-blur-md p-2 rounded-lg text-white text-center min-w-[60px]">
+<p class="text-[8px] font-bold text-slate-300 uppercase">Edad</p>
+<p class="font-black text-sm leading-none">20</p>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-sm">location_on</span>
+<span class="text-xs font-bold text-slate-500 uppercase">Madrid</span>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-slate-400 font-bold uppercase">Precio Pedido</p>
+<p class="text-primary font-black text-lg leading-none">€75,000</p>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Club actual</span>
+<span class="font-bold">R. Madrid F</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-400">Estado</span>
+<span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold">Transfer List</span>
+</div>
+</div>
+<button class="w-full bg-secondary dark:bg-slate-800 text-white hover:bg-primary hover:text-white font-bold py-3 rounded-xl transition-all text-sm uppercase">
+                            Consultar Interés
+                        </button>
+</div>
+</div>
+</div>
+<div class="mt-12 flex justify-center">
+<nav class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-white font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50">3</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+<aside class="space-y-8">
+<div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+<h3 class="text-lg font-black font-display text-secondary dark:text-white mb-6 uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">local_fire_department</span>
+                    Hot Transfers
+                </h3>
+<div class="space-y-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 flex items-center justify-center font-bold">PR</div>
+<div class="flex-1 overflow-hidden">
+<p class="font-bold text-sm truncate">Pau Riera</p>
+<p class="text-xs text-slate-400">Valencia ➔ Girona</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-black text-primary">€450K</p>
+<p class="text-[10px] text-slate-400">Confirmado</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 flex items-center justify-center font-bold">AM</div>
+<div class="flex-1 overflow-hidden">
+<p class="font-bold text-sm truncate">Alba Moreno</p>
+<p class="text-xs text-slate-400">Betis ➔ At. Madrid</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-black text-primary">€120K</p>
+<p class="text-[10px] text-slate-400">Cerrado</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 flex items-center justify-center font-bold">LC</div>
+<div class="flex-1 overflow-hidden">
+<p class="font-bold text-sm truncate">Leo Castán</p>
+<p class="text-xs text-slate-400">Libre ➔ Cádiz CF</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-black text-primary">Libre</p>
+<p class="text-[10px] text-slate-400">Oficial</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors border-t border-slate-100 dark:border-slate-800 pt-4 uppercase">Ver todo el historial</button>
+</div>
+<div class="bg-secondary text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="text-lg font-black font-display mb-6 uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">assignment</span>
+                        Necesidades Club
+                    </h3>
+<div class="space-y-4">
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-bold bg-primary text-white px-2 py-0.5 rounded uppercase">Urgente</span>
+<span class="text-[10px] text-slate-400 uppercase">Hace 2h</span>
+</div>
+<p class="text-sm font-bold leading-snug">Club 3ª RFEF busca Delantero Centro (+1.85m)</p>
+<p class="text-xs text-slate-400 mt-2">Ubicación: Extremadura</p>
+</div>
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded uppercase">Nuevo</span>
+<span class="text-[10px] text-slate-400 uppercase">Hace 5h</span>
+</div>
+<p class="text-sm font-bold leading-snug">Cantera Pro busca Extremo Izquierdo Sub-16</p>
+<p class="text-xs text-slate-400 mt-2">Ubicación: Cataluña</p>
+</div>
+</div>
+<button class="w-full mt-6 bg-primary hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase">Publicar Demanda</button>
+</div>
+<div class="absolute -bottom-10 -right-10 opacity-5">
+<span class="material-symbols-outlined text-[140px]">groups</span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 mt-20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div>
+<a href="index.html">
+<span class="text-2xl font-black font-display tracking-tighter text-secondary dark:text-white uppercase">KABOOM<span class="text-primary">FOT</span></span>
+</a>
+<p class="text-slate-500 text-sm mt-2">© 2024 Kaboomfot Recruitment S.L. Todos los derechos reservados.</p>
+</div>
+<div class="flex gap-8 text-sm font-semibold text-slate-500">
+<a class="hover:text-primary" href="#">Privacidad</a>
+<a class="hover:text-primary" href="#">Términos</a>
+<a class="hover:text-primary" href="#">Contacto</a>
+<a class="hover:text-primary" href="#">Publicidad</a>
+</div>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+</div>
+</div>
+</div>
+</footer>
+
+</body></html>
