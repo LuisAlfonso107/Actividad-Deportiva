@@ -19,11 +19,17 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Avoid CORS: browser calls same origin, Vite forwards to API-Football
-      '/api/apifootball': {
-        target: 'https://v3.football.api-sports.io',
+      // Avoid CORS: browser calls same origin, Vite forwards to football-data.org v4
+      '/api/footballdata': {
+        target: 'https://api.football-data.org',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/apifootball/, ''),
+        rewrite: (path) => path.replace(/^\/api\/footballdata/, ''),
+      },
+      // TheSportsDB for La Liga standings (https://www.thesportsdb.com/documentation#free_vs_premium)
+      '/api/thesportsdb': {
+        target: 'https://www.thesportsdb.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/thesportsdb/, '/api/v1/json'),
       },
     },
   },
