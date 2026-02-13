@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentación – Actividad Deportiva</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.5;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #1a1a1a;
+    }
+    h1 { font-size: 1.75rem; border-bottom: 2px solid #42b883; padding-bottom: 0.5rem; }
+    h2 { font-size: 1.35rem; margin-top: 1.5rem; color: #2c3e50; }
+    h3 { font-size: 1.1rem; margin-top: 1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    code, pre { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
+    pre { padding: 1rem; overflow-x: auto; }
+    ul, ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+    hr { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }
+    .subtitle { color: #666; font-size: 0.95rem; margin-bottom: 1.5rem; }
+    @media print {
+      body { padding: 1rem; }
+      h2 { page-break-after: avoid; }
+      table { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Documentación del proyecto – Actividad Deportiva</h1>
+  <p class="subtitle">Aplicación Vue 3 para consultar datos de fútbol (jugadores, La Liga 2, plantillas y análisis).</p>
+
+  <h2>Descripción general</h2>
+  <p>Aplicación web para consultar datos de fútbol: jugadores favoritos, búsqueda, análisis de jugadores, clasificación de La Liga 2 y plantilla/fichajes por equipo. Utiliza <strong>dos APIs</strong> (football-data.org y TheSportsDB) para obtener resultados y reducir límites de uso.</p>
+
+  <h2>Tecnologías</h2>
+  <ul>
+    <li><strong>Vue 3</strong> (Composition API, <code>&lt;script setup&gt;</code>)</li>
+    <li><strong>Vue Router 5</strong> – rutas y navegación</li>
+    <li><strong>Pinia</strong> – estado global (favoritos, errores de API)</li>
+    <li><strong>TypeScript</strong></li>
+    <li><strong>Vite 7</strong> – build y servidor de desarrollo</li>
+  </ul>
+
+  <h2>Estructura del proyecto</h2>
+  <pre>src/
+├── main.ts                 # Entrada de la app (Vue + Pinia + Router)
+├── App.vue                 # Layout: cabecera, navegación, alertas de API
+├── router/index.ts        # Rutas
+├── services/
+│   ├── footballApi.ts     # football-data.org (jugadores, persona, standings fallback)
+│   └── thesportsdb.ts     # TheSportsDB (La Liga 2, plantilla con fotos, búsqueda, jugador)
+├── stores/
+│   ├── apiError.ts        # Mensajes de error de API
+│   ├── favorites.ts       # Jugadores favoritos
+│   └── counter.ts
+├── views/
+│   ├── HomeView.vue       # Inicio: búsqueda, lista de jugadores, favoritos
+│   ├── LaLiga2StandingsView.vue  # Clasificación La Liga 2
+│   ├── TeamTransfersView.vue     # Plantilla / fichajes de un equipo
+│   ├── PlayerAnalysisView.vue    # Ficha del jugador (análisis)
+│   └── AboutView.vue      # Acerca de
+└── components/            # Componentes reutilizables</pre>
+
+  <h2>Rutas y pantallas</h2>
+  <table>
+    <thead>
+      <tr><th>Ruta</th><th>Nombre</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/</code></td><td>Home</td><td>Búsqueda de jugadores (mín. 4 caracteres), lista inicial (Barcelona con fotos), favoritos. Combina football-data.org y TheSportsDB.</td></tr>
+      <tr><td><code>/player/:id</code></td><td>Análisis de jugador</td><td>Ficha del jugador: foto, datos personales, club. Prueba football-data.org y luego TheSportsDB por ID.</td></tr>
+      <tr><td><code>/laliga2</code></td><td>Clasificación La Liga 2</td><td>Tabla de La Liga 2 (Segunda División), temporada 2025-2026. Clic en equipo → plantilla.</td></tr>
+      <tr><td><code>/team/:id/transfers</code></td><td>Fichajes del equipo</td><td>Plantilla del equipo con foto y tipo de fichaje. Cada jugador enlaza a su ficha (Análisis).</td></tr>
+      <tr><td><code>/about</code></td><td>Acerca de</td><td>Página informativa.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>APIs utilizadas</h2>
+
+  <h3>1. football-data.org (API v4)</h3>
+  <ul>
+    <li><strong>Uso:</strong> plantilla inicial (Barcelona) como respaldo, búsqueda (vacía), lookup de persona por ID, posibles standings si hay token válido.</li>
+    <li><strong>Autenticación:</strong> cabecera <code>X-Auth-Token</code>.</li>
+    <li><strong>Tokens:</strong> dos claves en <code>.env</code> para rotar: <code>VITE_FOOTBALL_API_KEY</code> y <code>VITE_FOOTBALL_API_KEY_2</code>.</li>
+    <li><strong>Proxy en desarrollo:</strong> <code>/api/footballdata</code> → <code>https://api.football-data.org</code>.</li>
+  </ul>
+
+  <h3>2. TheSportsDB (API v1)</h3>
+  <ul>
+    <li><strong>Uso:</strong> clasificación La Liga 2, lista de jugadores del Barcelona con fotos, búsqueda de jugadores, lookup de jugador por ID, plantilla/fichajes por equipo.</li>
+    <li><strong>Autenticación:</strong> clave en la URL (ej. <code>.../123/...</code>).</li>
+    <li><strong>Variable de entorno:</strong> <code>VITE_THESPORTSDB_API_KEY</code> (por defecto 123, plan gratuito).</li>
+    <li><strong>Proxy en desarrollo:</strong> <code>/api/thesportsdb</code> → <code>https://www.thesportsdb.com/api/v1/json</code>.</li>
+  </ul>
+
+  <h2>Configuración (.env)</h2>
+  <p>Variables necesarias (copiar desde <code>.env.example</code> o crear <code>.env</code>):</p>
+  <pre># football-data.org (una o ambas claves)
+VITE_FOOTBALL_API_KEY=tu-token-1
+VITE_FOOTBALL_API_KEY_2=tu-token-2
+
+# TheSportsDB (clave gratuita: 123)
+VITE_THESPORTSDB_API_KEY=123</pre>
+  <p>Tras cambiar <code>.env</code>, hay que reiniciar el servidor de desarrollo.</p>
+
+  <h2>Cómo funciona cada parte</h2>
+
+  <h3>Inicio (Home)</h3>
+  <ul>
+    <li>Al cargar se pide la plantilla de Barcelona con fotos a TheSportsDB; si falla, se usa football-data.org (sin fotos).</li>
+    <li>La búsqueda llama a football-data.org y TheSportsDB en paralelo y une resultados.</li>
+    <li>Los jugadores sin foto muestran iniciales como placeholder.</li>
+    <li>Se pueden marcar jugadores como favoritos (Pinia).</li>
+  </ul>
+
+  <h3>Clasificación La Liga 2</h3>
+  <ul>
+    <li>Pide la tabla a TheSportsDB (liga 4400, temporada 2025-2026).</li>
+    <li>Se muestra el año de temporada como 2026.</li>
+    <li>Clic en una fila: navegación a <code>/team/:id/transfers</code> con el ID de equipo de TheSportsDB.</li>
+  </ul>
+
+  <h3>Plantilla / Fichajes del equipo</h3>
+  <ul>
+    <li>Se pide la plantilla con TheSportsDB (<code>lookup_all_players.php</code>).</li>
+    <li>Se muestra cada jugador con foto (o iniciales), nombre y tipo de fichaje (<code>strSigning</code>).</li>
+    <li>Clic en el nombre del jugador: va a <code>/player/:id</code> (análisis). El ID es de TheSportsDB.</li>
+  </ul>
+
+  <h3>Análisis del jugador</h3>
+  <ul>
+    <li>Se intenta primero football-data.org (<code>/persons/:id</code>).</li>
+    <li>Si no hay resultado, se usa TheSportsDB (<code>lookupplayer.php</code>).</li>
+    <li>Así funcionan tanto IDs de football-data.org como de TheSportsDB (p. ej. desde la plantilla).</li>
+  </ul>
+
+  <h2>Comandos</h2>
+  <pre># Instalar dependencias
+npm install
+
+# Servidor de desarrollo (con proxy para las APIs)
+npm run dev
+
+# Compilar para producción
+npm run build
+
+# Vista previa de la build
+npm run preview
+
+# Tests unitarios
+npm test</pre>
+
+  <h2>Resumen de flujos</h2>
+  <ul>
+    <li><strong>Ver clasificación:</strong> La Liga 2 → tabla por temporada 2025-2026.</li>
+    <li><strong>Ver equipo:</strong> clic en equipo → plantilla con fotos y enlace a cada jugador.</li>
+    <li><strong>Ver jugador:</strong> desde Home (búsqueda/lista/favoritos) o desde plantilla → ficha de análisis.</li>
+    <li><strong>Límites de API:</strong> dos tokens de football-data.org en rotación; TheSportsDB con clave gratuita.</li>
+  </ul>
+
+  <hr />
+  <p style="color:#888;font-size:0.9rem;">Para generar un PDF: Archivo → Imprimir → Guardar como PDF.</p>
+</body>
+</html>

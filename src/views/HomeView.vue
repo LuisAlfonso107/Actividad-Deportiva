@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useFavoritesStore } from '../stores/favorites'
-import { useApiErrorStore } from '../stores/apiError'
-import { searchPlayers, getInitialPlayers } from '../services/footballApi'
-import { getBarcelonaPlayersWithPhotos, searchPlayersTheSportsDB } from '../services/thesportsdb'
 import type { ApiPlayerResponse } from '../services/footballApi'
+import { getInitialPlayers, searchPlayers } from '../services/footballApi'
+import { getLaLiga2PlayersWithPhotos, searchPlayersTheSportsDB } from '../services/thesportsdb'
+import { useApiErrorStore } from '../stores/apiError'
+import { useFavoritesStore } from '../stores/favorites'
 
 const router = useRouter()
 const favoritesStore = useFavoritesStore()
@@ -19,13 +19,13 @@ const searchResults = ref<ApiPlayerResponse[]>([])
 const showResultsList = ref(true)
 
 const favorites = computed(() => favoritesStore.favorites)
-const hasFavorites = computed(() => favorites.length > 0)
+const hasFavorites = computed(() => favorites.value.length > 0)
 
 onMounted(async () => {
   try {
     let res
     try {
-      res = await getBarcelonaPlayersWithPhotos()
+      res = await getLaLiga2PlayersWithPhotos()
     } catch {
       res = await getInitialPlayers()
     }
@@ -124,16 +124,22 @@ function analyseFavorite(id: number) {
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/)
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-  if (parts[0]?.length >= 2) return parts[0].slice(0, 2).toUpperCase()
-  return parts[0]?.[0]?.toUpperCase() ?? '?'
+  const first = parts[0]
+  const last = parts[parts.length - 1]
+  
+  if (parts.length >= 2 && first && last && first[0] && last[0]) {
+    return (first[0] + last[0]).toUpperCase()
+  }
+  if (first && first.length >= 2) return first.slice(0, 2).toUpperCase()
+  if (first && first[0]) return first[0].toUpperCase()
+  return '?'
 }
 </script>
 
 <template>
   <main class="home">
-    <h1>Favorite Football Players</h1>
-    <p class="subtitle">Search players and analyse your favorites with live API data.</p>
+    <h1>Favorite Football Players - La Liga 2</h1>
+    <p class="subtitle">Search La Liga 2 players and analyse your favorites with live API data.</p>
 
     <section class="search-section">
       <div class="search-box">
