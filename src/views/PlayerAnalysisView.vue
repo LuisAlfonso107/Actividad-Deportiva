@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useApiErrorStore } from '../stores/apiError'
-import { getPlayer, searchPlayers, LALIGA2_LEAGUE_ID } from '../services/footballApi'
+import type { PlayersSearchResponse } from '../services/footballApi'
+import { getPlayer, LALIGA2_LEAGUE_ID, searchPlayers } from '../services/footballApi'
 import { getPlayerFromTheSportsDB } from '../services/thesportsdb'
-import type { ApiPlayerResponse, PlayersSearchResponse } from '../services/footballApi'
+import { useApiErrorStore } from '../stores/apiError'
 
 const route = useRoute()
 const router = useRouter()
@@ -55,24 +55,28 @@ onMounted(async () => {
       const searchRes = await searchPlayers(name, { league: LALIGA2_LEAGUE_ID, season: season.value })
       if (searchRes.response?.length) {
         const first = searchRes.response[0]
-        data.value = { ...searchRes, response: [first] }
-        router.replace({
-          name: 'player-analysis',
-          params: { id: String(first.player.id) },
-          query: { ...route.query, name },
-        })
+        if (first) {
+          data.value = { ...searchRes, response: [first] }
+          router.replace({
+            name: 'player-analysis',
+            params: { id: String(first.player.id) },
+            query: { ...route.query, name },
+          })
+        }
         loading.value = false
         return
       }
       const anyLeague = await searchPlayers(name, { league: 39, season: season.value })
       if (anyLeague.response?.length) {
         const first = anyLeague.response[0]
-        data.value = { ...anyLeague, response: [first] }
-        router.replace({
-          name: 'player-analysis',
-          params: { id: String(first.player.id) },
-          query: { ...route.query, name },
-        })
+        if (first) {
+          data.value = { ...anyLeague, response: [first] }
+          router.replace({
+            name: 'player-analysis',
+            params: { id: String(first.player.id) },
+            query: { ...route.query, name },
+          })
+        }
         loading.value = false
         return
       }
@@ -97,294 +101,266 @@ function show(val: string | number | null | undefined): string {
 }
 
 function initials(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-  if (parts[0]?.length >= 2) return parts[0].slice(0, 2).toUpperCase()
-  return parts[0]?.[0]?.toUpperCase() ?? '?'
+  const parts = name.trim().split(/\s+/).filter(p => p.length > 0)
+  if (parts.length >= 2) {
+    const first = parts[0]
+    const last = parts[parts.length - 1]
+    if (first && last && first[0] && last[0]) {
+      return (first[0] + last[0]).toUpperCase()
+    }
+  }
+  if (parts[0] && parts[0].length >= 2) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+  if (parts[0] && parts[0][0]) {
+    return parts[0][0].toUpperCase()
+  }
+  return '?'
 }
 </script>
 
 <template>
-  <div class="analysis">
-    <button type="button" class="back" @click="goBack">← Back to Home</button>
+  <div class="font-body bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+    <!-- Back Button -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <button 
+        @click="goBack"
+        class="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors font-medium"
+      >
+        <span class="material-symbols-rounded">arrow_back</span>
+        Volver
+      </button>
+    </div>
 
-    <div v-if="loading" class="loading">Loading player data…</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <!-- Loading State -->
+    <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p class="mt-4 text-slate-600 dark:text-slate-400">Cargando datos del jugador...</p>
+      </div>
+    </div>
 
+    <!-- Error State -->
+    <div v-else-if="error" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center py-16">
+        <span class="material-symbols-rounded text-6xl text-red-400">error</span>
+        <h3 class="text-xl font-semibold text-slate-600 mt-4">{{ error }}</h3>
+      </div>
+    </div>
+
+    <!-- Player Content -->
     <template v-else-if="p">
-      <header class="player-header">
-        <img
-          v-if="p.photo"
-          :src="p.photo"
-          :alt="p.name"
-          class="photo"
-          @error="(e) => (e.currentTarget!.style.display = 'none')"
-        />
-        <div v-else class="photo photo-placeholder" :aria-label="p.name">{{ initials(p.name) }}</div>
-        <div class="info">
-          <h1>{{ p.name }}</h1>
-          <p v-if="p.display_name && p.display_name !== p.name" class="meta">
-            Display name: {{ p.display_name }}
-          </p>
-          <p v-if="p.common_name && p.common_name !== p.name" class="meta">
-            Common name: {{ p.common_name }}
-          </p>
-        </div>
-      </header>
+      <!-- Player Header -->
+      <section class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+            <!-- Player Photo -->
+            <div class="flex-shrink-0">
+              <div class="relative w-32 h-32 md:w-48 md:h-48 bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden">
+                <img
+                  v-if="p.photo"
+                  :src="p.photo"
+                  :alt="p.name"
+                  class="w-full h-full object-cover"
+                  @error="(e: Event) => { const target = e.target as HTMLImageElement; target.style.display = 'none' }"
+                />
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800"
+                >
+                  <span class="text-4xl md:text-6xl font-black text-slate-400 dark:text-slate-500">{{ initials(p.name) }}</span>
+                </div>
+              </div>
+            </div>
 
-      <!-- Club(s) – e.g. Barcelona, Liverpool (from teams or transfer history) -->
-      <section v-if="statsList.length > 0" class="section club-section">
-        <h2>Club(s)</h2>
-        <p class="club-intro">Current / former clubs:</p>
-        <ul class="clubs-list">
-          <li v-for="stat in statsList" :key="stat.team.id" class="club-card">
-            <img
-              v-if="stat.team.logo"
-              :src="stat.team.logo"
-              :alt="stat.team.name"
-              class="club-logo"
-              @error="(e) => (e.currentTarget!.style.display = 'none')"
-            />
-            <span class="club-name">{{ stat.team.name || '—' }}</span>
-          </li>
-        </ul>
-      </section>
-
-      <section class="section">
-        <h2>Personal information</h2>
-        <dl class="info-grid">
-          <dt>First name</dt>
-          <dd>{{ show(p.firstname) }}</dd>
-          <dt>Last name</dt>
-          <dd>{{ show(p.lastname) }}</dd>
-          <dt>Age</dt>
-          <dd>{{ show(p.age) }}</dd>
-          <dt>Date of birth</dt>
-          <dd>{{ show(p.birth?.date) }}</dd>
-          <dt>Place of birth</dt>
-          <dd>{{ show(p.birth?.place) }}</dd>
-          <dt>Country of birth</dt>
-          <dd>{{ show(p.birth?.country) }}</dd>
-          <dt>Nationality</dt>
-          <dd>{{ show(p.nationality) }}</dd>
-          <dt>Gender</dt>
-          <dd>{{ show(p.gender) }}</dd>
-        </dl>
-      </section>
-
-      <section class="section">
-        <h2>Physical</h2>
-        <dl class="info-grid">
-          <dt>Height</dt>
-          <dd>{{ show(p.height) }}</dd>
-          <dt>Weight</dt>
-          <dd>{{ show(p.weight) }}</dd>
-        </dl>
-      </section>
-
-      <section v-if="firstStats" class="section">
-        <h2>Statistics</h2>
-        <div class="stats-grid">
-          <div class="stat">
-            <span class="label">Position</span>
-            <span class="value">{{ show(firstStats.games?.position) }}</span>
-          </div>
-          <div class="stat">
-            <span class="label">Appearances</span>
-            <span class="value">{{ firstStats.games?.appearences ?? '—' }}</span>
-          </div>
-          <div class="stat">
-            <span class="label">Minutes</span>
-            <span class="value">{{ firstStats.games?.minutes ?? '—' }}</span>
-          </div>
-          <div class="stat">
-            <span class="label">Rating</span>
-            <span class="value">{{ show(firstStats.games?.rating) }}</span>
-          </div>
-          <div v-if="firstStats.goals != null" class="stat">
-            <span class="label">Goals</span>
-            <span class="value">{{ firstStats.goals.total }}</span>
-          </div>
-          <div v-if="firstStats.goals?.assists != null" class="stat">
-            <span class="label">Assists</span>
-            <span class="value">{{ firstStats.goals.assists }}</span>
-          </div>
-          <div v-if="firstStats.shots != null" class="stat">
-            <span class="label">Shots</span>
-            <span class="value">{{ firstStats.shots.total }}</span>
-          </div>
-          <div v-if="firstStats.passes != null" class="stat">
-            <span class="label">Passes</span>
-            <span class="value">{{ firstStats.passes.total }}</span>
-          </div>
-          <div v-if="firstStats.tackles != null" class="stat">
-            <span class="label">Tackles</span>
-            <span class="value">{{ firstStats.tackles.total }}</span>
-          </div>
-          <div v-if="firstStats.duels != null" class="stat">
-            <span class="label">Duels</span>
-            <span class="value">{{ firstStats.duels.total }}</span>
-          </div>
-          <div v-if="firstStats.dribbles != null" class="stat">
-            <span class="label">Dribbles</span>
-            <span class="value">{{ firstStats.dribbles.attempts }}</span>
-          </div>
-          <div v-if="firstStats.fouls != null" class="stat">
-            <span class="label">Fouls (drawn / committed)</span>
-            <span class="value">{{ firstStats.fouls.drawn }} / {{ firstStats.fouls.committed }}</span>
-          </div>
-          <div v-if="firstStats.cards != null" class="stat">
-            <span class="label">Cards (yellow / red)</span>
-            <span class="value">{{ firstStats.cards.yellow }} / {{ firstStats.cards.red }}</span>
-          </div>
-          <div v-if="firstStats.penalty != null" class="stat">
-            <span class="label">Penalties (scored / missed)</span>
-            <span class="value">{{ firstStats.penalty.scored }} / {{ firstStats.penalty.missed }}</span>
+            <!-- Player Info -->
+            <div class="flex-1">
+              <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">{{ p.name }}</h1>
+              <div class="space-y-2 text-slate-600 dark:text-slate-400">
+                <p v-if="p.display_name && p.display_name !== p.name">
+                  Nombre completo: {{ p.display_name }}
+                </p>
+                <p v-if="p.common_name && p.common_name !== p.name">
+                  Nombre común: {{ p.common_name }}
+                </p>
+                <p v-if="firstStats?.team?.name">
+                  Club actual: {{ firstStats.team.name }}
+                </p>
+                <p v-if="firstStats?.games?.position">
+                  Posición: {{ show(firstStats.games.position) }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      <!-- Main Content -->
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Left Column -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Clubs Section -->
+            <section v-if="statsList.length > 0" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Clubes</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Clubes actuales y anteriores</p>
+              </div>
+              <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div
+                    v-for="stat in statsList"
+                    :key="stat.team.id"
+                    class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+                  >
+                    <img
+                      v-if="stat.team.logo"
+                      :src="stat.team.logo"
+                      :alt="stat.team.name"
+                      class="w-12 h-12 object-contain"
+                      @error="(e: Event) => { const target = e.target as HTMLImageElement; target.style.display = 'none' }"
+                    />
+                    <div v-else class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+                      <span class="material-symbols-rounded text-slate-400">sports_soccer</span>
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-slate-900 dark:text-white">{{ stat.team.name || '—' }}</h3>
+                      <p class="text-sm text-slate-600 dark:text-slate-400">Temporada 2024</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section v-if="firstStats" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Estadísticas</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Rendimiento del jugador</p>
+              </div>
+              <div class="p-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 text-center">
+                    <div class="text-2xl font-black text-emerald-700 dark:text-emerald-300">{{ firstStats.games?.appearences ?? '—' }}</div>
+                    <div class="text-xs text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-wider mt-1">Partidos</div>
+                  </div>
+                  <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 text-center">
+                    <div class="text-2xl font-black text-blue-700 dark:text-blue-300">{{ firstStats.goals?.total ?? '—' }}</div>
+                    <div class="text-xs text-blue-600 dark:text-blue-400 font-medium uppercase tracking-wider mt-1">Goles</div>
+                  </div>
+                  <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800 text-center">
+                    <div class="text-2xl font-black text-purple-700 dark:text-purple-300">{{ firstStats.goals?.assists ?? '—' }}</div>
+                    <div class="text-xs text-purple-600 dark:text-purple-400 font-medium uppercase tracking-wider mt-1">Asistencias</div>
+                  </div>
+                  <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800 text-center">
+                    <div class="text-2xl font-black text-orange-700 dark:text-orange-300">{{ show(firstStats.games?.rating) }}</div>
+                    <div class="text-xs text-orange-600 dark:text-orange-400 font-medium uppercase tracking-wider mt-1">Rating</div>
+                  </div>
+                  <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-xl border border-red-200 dark:border-red-800 text-center">
+                    <div class="text-2xl font-black text-red-700 dark:text-red-300">{{ firstStats.shots?.total ?? '—' }}</div>
+                    <div class="text-xs text-red-600 dark:text-red-400 font-medium uppercase tracking-wider mt-1">Tiros</div>
+                  </div>
+                  <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-800/20 p-4 rounded-xl border border-cyan-200 dark:border-cyan-800 text-center">
+                    <div class="text-2xl font-black text-cyan-700 dark:text-cyan-300">{{ firstStats.passes?.total ?? '—' }}</div>
+                    <div class="text-xs text-cyan-600 dark:text-cyan-400 font-medium uppercase tracking-wider mt-1">Pases</div>
+                  </div>
+                  <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800 text-center">
+                    <div class="text-2xl font-black text-yellow-700 dark:text-yellow-300">{{ firstStats.tackles?.total ?? '—' }}</div>
+                    <div class="text-xs text-yellow-600 dark:text-yellow-400 font-medium uppercase tracking-wider mt-1">Entradas</div>
+                  </div>
+                  <div class="bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20 p-4 rounded-xl border border-pink-200 dark:border-pink-800 text-center">
+                    <div class="text-2xl font-black text-pink-700 dark:text-pink-300">{{ firstStats.duels?.total ?? '—' }}</div>
+                    <div class="text-xs text-pink-600 dark:text-pink-400 font-medium uppercase tracking-wider mt-1">Duelos</div>
+                  </div>
+                </div>
+
+                <!-- Additional Stats -->
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <div class="text-sm text-slate-600 dark:text-slate-400 mb-1">Tarjetas (Amarillas / Rojas)</div>
+                    <div class="font-semibold text-slate-900 dark:text-white">
+                      {{ firstStats.cards?.yellow ?? '0' }} / {{ firstStats.cards?.red ?? '0' }}
+                    </div>
+                  </div>
+                  <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <div class="text-sm text-slate-600 dark:text-slate-400 mb-1">Penales (Marcados / Fallados)</div>
+                    <div class="font-semibold text-slate-900 dark:text-white">
+                      {{ firstStats.penalty?.scored ?? '0' }} / {{ firstStats.penalty?.missed ?? '0' }}
+                    </div>
+                  </div>
+                  <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <div class="text-sm text-slate-600 dark:text-slate-400 mb-1">Faltas (Recibidas / Cometidas)</div>
+                    <div class="font-semibold text-slate-900 dark:text-white">
+                      {{ firstStats.fouls?.drawn ?? '0' }} / {{ firstStats.fouls?.committed ?? '0' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Right Column -->
+          <div class="space-y-8">
+            <!-- Personal Information -->
+            <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Información Personal</h2>
+              </div>
+              <div class="p-6 space-y-4">
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Nombre</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.firstname) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Apellido</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.lastname) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Edad</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.age) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Fecha de nacimiento</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.birth?.date) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Lugar de nacimiento</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.birth?.place) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">País</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.birth?.country) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Nacionalidad</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.nationality) }}</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Physical Information -->
+            <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Características Físicas</h2>
+              </div>
+              <div class="p-6 space-y-4">
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Altura</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.height) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Peso</span>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ show(p.weight) }}</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
     </template>
   </div>
 </template>
 
 <style scoped>
-.analysis {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-.back {
-  background: var(--color-background-mute);
-  border: 1px solid var(--color-border);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-bottom: 1.5rem;
-  color: var(--color-text);
-}
-.back:hover {
-  background: var(--color-border-hover);
-}
-.loading,
-.error {
-  text-align: center;
-  padding: 2rem;
-}
-.error {
-  color: #c00;
-}
-.player-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
-.photo {
-  width: 140px;
-  height: 140px;
-  object-fit: contain;
-  border-radius: 12px;
-  background: var(--color-background-mute);
-}
-.photo-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 2.5rem;
-  color: var(--color-text);
-  opacity: 0.9;
-}
-.info h1 {
-  font-size: 1.75rem;
-  margin-bottom: 0.5rem;
-}
-.meta {
-  margin: 0.25rem 0;
-  color: var(--color-text);
-  opacity: 0.9;
-}
-.section {
-  margin-bottom: 2rem;
-}
-.section h2 {
-  font-size: 1.15rem;
-  margin-bottom: 0.75rem;
-  color: var(--color-heading);
-}
-.info-grid {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.35rem 1.5rem;
-  margin: 0;
-}
-.info-grid dt {
-  font-weight: 500;
-  opacity: 0.9;
-}
-.info-grid dd {
-  margin: 0;
-}
-.club-section {
-  background: var(--color-background-mute);
-  border-radius: 12px;
-  padding: 1.25rem;
-  border: 1px solid var(--color-border);
-}
-.club-intro {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.95rem;
-  opacity: 0.9;
-}
-.clubs-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-.club-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: var(--color-background);
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  min-width: 160px;
-}
-.club-logo {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-}
-.club-name {
-  font-weight: 600;
-  font-size: 1.05rem;
-}
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 1rem;
-}
-.stat {
-  background: var(--color-background-mute);
-  padding: 1rem;
-  border-radius: 8px;
-  text-align: center;
-}
-.stat .label {
-  display: block;
-  font-size: 0.85rem;
-  opacity: 0.8;
-  margin-bottom: 0.25rem;
-}
-.stat .value {
-  font-weight: 600;
-  font-size: 1.1rem;
-}
+/* Tailwind CSS handles all styling */
 </style>
