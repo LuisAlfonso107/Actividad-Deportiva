@@ -5,10 +5,10 @@
  */
 
 import type {
-  StandingsResponse,
-  StandingRow,
-  PlayersSearchResponse,
   ApiPlayerResponse,
+  PlayersSearchResponse,
+  StandingRow,
+  StandingsResponse,
   TeamTransfersResponse,
   TransferItem,
 } from './footballApi'
@@ -25,6 +25,8 @@ export const THESPORTSDB_LALIGA2_LEAGUE_ID = '4400'
 
 /** Barcelona – TheSportsDB team ID (for player list with photos) */
 export const THESPORTSDB_BARCELONA_TEAM_ID = '133739'
+/** Real Zaragoza – TheSportsDB team ID (example La Liga 2 team for player list) */
+export const THESPORTSDB_ZARAGOZA_TEAM_ID = '134777'
 
 interface TheSportsDBPlayer {
   idPlayer?: string
@@ -230,6 +232,78 @@ export async function getBarcelonaPlayersWithPhotos(): Promise<PlayersSearchResp
   }
   const list = data.player ?? []
   const teamName = list[0]?.strTeam ?? 'FC Barcelona'
+  const teamId = toNum(list[0]?.idTeam)
+  // Exclude manager/coach
+  const playersOnly = list.filter(
+    (p) => p.strPosition && p.strPosition.toLowerCase() !== 'manager'
+  )
+  const response: ApiPlayerResponse[] = playersOnly.map((p) => {
+    const name = p.strPlayer ?? '—'
+    const last = p.strLastName ?? ''
+    const first = last ? name.replace(new RegExp(`\\s*${last}$`), '').trim() : name.split(' ')[0] ?? name
+    return {
+      player: {
+        id: toNum(p.idPlayer),
+        name,
+        firstname: first,
+        lastname: last,
+        age: p.dateBorn ? new Date().getFullYear() - new Date(p.dateBorn).getFullYear() : null,
+        birth: { date: p.dateBorn ?? '', place: null, country: p.strNationality ?? '' },
+        nationality: p.strNationality ?? '',
+        height: null,
+        weight: null,
+        photo: p.strThumb ?? '',
+      },
+      statistics: [
+        {
+          team: { id: teamId, name: teamName, logo: '' },
+          games: {
+            position: p.strPosition ?? '',
+            rating: null,
+            captain: false,
+            minutes: 0,
+            appearences: 0,
+            lineups: 0,
+            substitute_in: 0,
+            substitute_out: 0,
+          },
+        },
+      ],
+    }
+  })
+  return {
+    get: 'players',
+    parameters: { search: '' },
+    errors: {},
+    results: response.length,
+    paging: { current: 1, total: 1 },
+    response,
+  }
+}
+
+/**
+ * Get Real Zaragoza squad with player photos from TheSportsDB (for home page initial list - La Liga 2).
+ * Free tier: 10 requests per minute for list endpoints.
+ */
+export async function getLaLiga2PlayersWithPhotos(): Promise<PlayersSearchResponse> {
+  const base = API_BASE.replace(/\/$/, '')
+  const url = `${base}/${API_KEY}/lookup_all_players.php?id=${THESPORTSDB_ZARAGOZA_TEAM_ID}`
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error(`TheSportsDB error: ${res.status}`)
+  }
+  const text = await res.text()
+  if (!text.trim()) {
+    throw new Error('TheSportsDB returned an empty response.')
+  }
+  let data: TheSportsDBPlayersResponse
+  try {
+    data = JSON.parse(text) as TheSportsDBPlayersResponse
+  } catch {
+    throw new Error('Invalid response from TheSportsDB.')
+  }
+  const list = data.player ?? []
+  const teamName = list[0]?.strTeam ?? 'Real Zaragoza'
   const teamId = toNum(list[0]?.idTeam)
   // Exclude manager/coach
   const playersOnly = list.filter(

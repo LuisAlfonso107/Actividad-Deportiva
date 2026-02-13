@@ -10,9 +10,44 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/players',
+      name: 'players',
+      component: () => import('../views/PlayersView.vue'),
+    },
+    {
       path: '/player/:id',
+      name: 'player',
+      component: () => import('../views/PlayerView.vue'),
+    },
+    {
+      path: '/player/:id/analysis',
       name: 'player-analysis',
       component: () => import('../views/PlayerAnalysisView.vue'),
+    },
+    {
+      path: '/favorites',
+      name: 'favorites',
+      component: () => import('../views/FavoritesView.vue'),
+    },
+    {
+      path: '/market',
+      name: 'market',
+      component: () => import('../views/MarketView.vue'),
+    },
+    {
+      path: '/news',
+      name: 'news',
+      component: () => import('../views/NewsView.vue'),
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue'),
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('../views/SettingsView.vue'),
     },
     {
       path: '/laliga2',
