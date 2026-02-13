@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import type { StandingRow, StandingsResponse } from '../services/footballApi'
+import { getLaLigaStandings } from '../services/thesportsdb'
 import { useApiErrorStore } from '../stores/apiError'
-import { getStandings, type StandingsResponse, type StandingRow } from '../services/footballApi'
 
 const router = useRouter()
 const apiErrorStore = useApiErrorStore()
@@ -12,7 +13,7 @@ const data = ref<StandingsResponse | null>(null)
 
 onMounted(async () => {
   try {
-    data.value = await getStandings()
+    data.value = await getLaLigaStandings()
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to load standings'
     error.value = msg
@@ -32,222 +33,135 @@ function goToTeamTransfers(row: StandingRow) {
 </script>
 
 <template>
-  <main class="standings-page">
-    <h1>Clasificación La Liga 2</h1>
-    <p class="subtitle">Segunda División – Temporada {{ data?.season ?? '—' }}</p>
+  <main class="min-h-screen bg-background-light dark:bg-background-dark">
+    <!-- Hero Section -->
+    <section class="hero-gradient py-16 px-4 text-center text-white">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl md:text-6xl font-display font-black mb-4 tracking-tight">
+          CLASIFICACIÓN <span class="text-primary">LA LIGA 2</span>
+        </h1>
+        <p class="text-xl text-slate-300 max-w-2xl mx-auto font-light">
+          {{ data?.leagueName ?? 'Segunda División' }} – Temporada {{ data?.season ?? new Date().getFullYear() }}
+        </p>
+      </div>
+    </section>
 
-    <div v-if="loading" class="loading">Cargando clasificación…</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-
-    <template v-else-if="data">
-      <div class="league-header">
-        <img
-          v-if="data.leagueLogo"
-          :src="data.leagueLogo"
-          :alt="data.leagueName"
-          class="league-logo"
-        />
-        <h2>{{ data.leagueName }}</h2>
+    <!-- Standings Section -->
+    <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div v-if="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        <p class="text-slate-500 mt-4">Cargando clasificación...</p>
+      </div>
+      
+      <div v-else-if="error" class="text-center py-12">
+        <span class="material-symbols-rounded text-6xl text-red-400">error</span>
+        <p class="text-red-500 mt-4">{{ error }}</p>
       </div>
 
-      <div class="table-wrap">
-        <table class="standings-table">
-          <thead>
-            <tr>
-              <th class="col-pos">#</th>
-              <th class="col-team">Equipo</th>
-              <th class="col-num">PJ</th>
-              <th class="col-num">G</th>
-              <th class="col-num">E</th>
-              <th class="col-num">P</th>
-              <th class="col-num">GF</th>
-              <th class="col-num">GC</th>
-              <th class="col-num">DG</th>
-              <th class="col-pts">Pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="row in data.standings"
-              :key="row.team.id"
-              :class="{ 'promotion': row.rank <= 2, 'playoff': row.rank >= 3 && row.rank <= 6, 'relegation': row.rank >= 19 }"
-              @click="goToTeamTransfers(row)"
-            >
-              <td class="col-pos">{{ row.rank }}</td>
-              <td class="col-team clickable">
-                <img
-                  v-if="row.team.logo"
-                  :src="row.team.logo"
-                  :alt="row.team.name"
-                  class="team-logo"
-                />
-                <span>{{ row.team.name }}</span>
-              </td>
-              <td class="col-num">{{ row.played }}</td>
-              <td class="col-num">{{ row.win }}</td>
-              <td class="col-num">{{ row.draw }}</td>
-              <td class="col-num">{{ row.lose }}</td>
-              <td class="col-num">{{ row.goalsFor }}</td>
-              <td class="col-num">{{ row.goalsAgainst }}</td>
-              <td class="col-num" :class="{ positive: row.goalsDiff > 0, negative: row.goalsDiff < 0 }">
-                {{ row.goalsDiff > 0 ? '+' : '' }}{{ row.goalsDiff }}
-              </td>
-              <td class="col-pts"><strong>{{ row.points }}</strong></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <template v-else-if="data">
+        <!-- League Header -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 mb-8 shadow-lg border border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
+              <span class="material-symbols-rounded text-white text-3xl">sports_soccer</span>
+            </div>
+            <div>
+              <h2 class="text-2xl font-display font-black text-secondary dark:text-white">{{ data.leagueName }}</h2>
+              <p class="text-slate-500 dark:text-slate-400">Temporada {{ data.season }}</p>
+            </div>
+          </div>
+        </div>
 
-      <div class="legend">
-        <span class="legend-item promotion">Promoción directa</span>
-        <span class="legend-item playoff">Play-off</span>
-        <span class="legend-item relegation">Descenso</span>
-      </div>
-    </template>
+        <!-- Standings Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-800">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">#</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Equipo</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">PJ</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">G</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">E</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">P</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">GF</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">GC</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">DG</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Pts</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                <tr
+                  v-for="row in data.standings"
+                  :key="row.team.id"
+                  :class="{ 
+                    'bg-green-50 dark:bg-green-900/20': row.rank <= 2, 
+                    'bg-yellow-50 dark:bg-yellow-900/20': row.rank >= 3 && row.rank <= 6, 
+                    'bg-red-50 dark:bg-red-900/20': row.rank >= 19 
+                  }"
+                  class="hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                  @click="goToTeamTransfers(row)"
+                >
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-lg font-black" :class="{
+                      'text-green-600': row.rank <= 2,
+                      'text-yellow-600': row.rank >= 3 && row.rank <= 6,
+                      'text-red-600': row.rank >= 19
+                    }">{{ row.rank }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <img
+                        v-if="row.team.logo"
+                        :src="row.team.logo"
+                        :alt="row.team.name"
+                        class="w-8 h-8 mr-3 rounded-lg object-contain"
+                      />
+                      <div v-else class="w-8 h-8 mr-3 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-rounded text-slate-400 text-sm">shield</span>
+                      </div>
+                      <span class="font-bold text-secondary dark:text-white">{{ row.team.name }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center font-semibold">{{ row.played }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center font-semibold text-green-600">{{ row.win }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center font-semibold text-yellow-600">{{ row.draw }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center font-semibold text-red-600">{{ row.lose }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center font-semibold">{{ row.goalsFor }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center font-semibold">{{ row.goalsAgainst }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center font-bold" :class="{ 
+                    'text-green-600': row.goalsDiff > 0, 
+                    'text-red-600': row.goalsDiff < 0 
+                  }">
+                    {{ row.goalsDiff > 0 ? '+' : '' }}{{ row.goalsDiff }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <span class="inline-block bg-primary text-white px-3 py-1 rounded-full text-sm font-black">
+                      {{ row.points }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-8 flex flex-wrap justify-center gap-6">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-green-100 dark:bg-green-900/30 rounded"></div>
+            <span class="text-sm font-semibold text-slate-600 dark:text-slate-300">Promoción directa</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-yellow-100 dark:bg-yellow-900/30 rounded"></div>
+            <span class="text-sm font-semibold text-slate-600 dark:text-slate-300">Play-off</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-red-100 dark:bg-red-900/30 rounded"></div>
+            <span class="text-sm font-semibold text-slate-600 dark:text-slate-300">Descenso</span>
+          </div>
+        </div>
+      </template>
+    </section>
   </main>
 </template>
-
-<style scoped>
-.standings-page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-h1 {
-  font-size: 1.75rem;
-  margin-bottom: 0.25rem;
-}
-.subtitle {
-  color: var(--color-text);
-  opacity: 0.85;
-  margin-bottom: 1.5rem;
-}
-.loading,
-.error {
-  text-align: center;
-  padding: 2rem;
-}
-.error {
-  color: #c00;
-}
-.league-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-.league-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-.league-header h2 {
-  font-size: 1.2rem;
-  margin: 0;
-}
-.table-wrap {
-  overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  background: var(--color-background-soft);
-}
-.standings-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-.standings-table th,
-.standings-table td {
-  padding: 0.6rem 0.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
-}
-.standings-table th {
-  font-weight: 600;
-  background: var(--color-background-mute);
-  color: var(--color-heading);
-}
-.standings-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-.standings-table tbody tr {
-  cursor: pointer;
-}
-.standings-table tbody tr:hover {
-  background: var(--color-background-mute);
-}
-.col-team.clickable {
-  cursor: pointer;
-}
-.col-pos {
-  width: 2.5rem;
-  text-align: center;
-}
-.col-team {
-  min-width: 180px;
-}
-.col-team .team-logo {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  vertical-align: middle;
-  margin-right: 0.5rem;
-}
-.col-num {
-  width: 2.5rem;
-  text-align: center;
-}
-.col-num.positive {
-  color: #0a7;
-}
-.col-num.negative {
-  color: #c00;
-}
-.col-pts {
-  width: 3rem;
-  text-align: center;
-  font-weight: 600;
-}
-tr.promotion {
-  background: rgba(0, 160, 100, 0.08);
-}
-tr.playoff {
-  background: rgba(255, 180, 0, 0.08);
-}
-tr.relegation {
-  background: rgba(200, 50, 50, 0.08);
-}
-.legend {
-  margin-top: 1rem;
-  font-size: 0.85rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-.legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-.legend-item.promotion::before {
-  content: '';
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  background: rgba(0, 160, 100, 0.35);
-}
-.legend-item.playoff::before {
-  content: '';
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  background: rgba(255, 180, 0, 0.35);
-}
-.legend-item.relegation::before {
-  content: '';
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  background: rgba(200, 50, 50, 0.35);
-}
-</style>

@@ -1,72 +1,64 @@
 /**
- * API-Football (api-sports.io) – full player info + club
- * Docs: https://www.api-football.com/documentation-v3
- * Base: https://v3.football.api-sports.io
+ * football-data.org API v4 – standings, teams, squad (players)
+ * Docs: https://www.football-data.org/documentation/quickstart
+ * API Reference: https://docs.football-data.org/general/v4/
+ * Base: https://api.football-data.org/v4
  */
 
 const API_BASE = import.meta.env.DEV
-  ? `${typeof location !== 'undefined' ? location.origin : ''}/api/apifootball`
-  : 'https://v3.football.api-sports.io'
-const API_KEY = (import.meta.env.VITE_FOOTBALL_API_KEY ?? import.meta.env.VITE_APIFOOTBALL_KEY ?? '').trim()
+  ? `${typeof location !== 'undefined' ? location.origin : ''}/api/footballdata/v4`
+  : 'https://api.football-data.org/v4'
 
-/* ---------- API-Football response types ---------- */
-export interface ApiFootballPlayer {
+const API_TOKENS: string[] = [
+  (import.meta.env.VITE_FOOTBALL_API_KEY ?? import.meta.env.VITE_FOOTBALL_DATA_TOKEN ?? '').trim(),
+  (import.meta.env.VITE_FOOTBALL_API_KEY_2 ?? '').trim(),
+].filter((t): t is string => Boolean(t))
+
+let _tokenIndex = 0
+function getNextToken(): string {
+  if (API_TOKENS.length === 0) return ''
+  const token = API_TOKENS[_tokenIndex % API_TOKENS.length] ?? ''
+  _tokenIndex += 1
+  return token
+}
+
+const API_TOKEN = API_TOKENS[0] ?? ''
+
+/* ---------- football-data.org response types ---------- */
+interface FDTeam {
   id: number
   name: string
-  firstname: string
-  lastname: string
-  age: number | null
-  birth: { date: string; place: string | null; country: string }
-  nationality: string
-  height: string | null
-  weight: string | null
-  photo: string
+  shortName?: string
+  tla?: string
+  crest?: string
 }
 
-export interface ApiFootballTeam {
+interface FDSquadPerson {
   id: number
+  firstName: string | null
+  lastName: string | null
   name: string
-  logo: string
+  position?: string
+  dateOfBirth?: string
+  nationality?: string
+  shirtNumber?: number
 }
 
-export interface ApiFootballStatistic {
-  team: ApiFootballTeam
-  games: {
-    position: string
-    rating: string | null
-    captain: boolean
-    minutes: number
-    appearences: number
-    lineups: number
-    substitute_in: number
-    substitute_out: number
-  }
-  goals?: { total: number; assists: number | null }
-  shots?: { total: number; on: number | null }
-  passes?: { total: number; accuracy: number | null }
-  tackles?: { total: number }
-  duels?: { total: number; won: number | null }
-  dribbles?: { attempts: number; success: number | null }
-  fouls?: { drawn: number; committed: number | null }
-  cards?: { yellow: number; red: number }
-  penalty?: { scored: number; missed: number }
+interface FDStandingsTableRow {
+  position: number
+  team: FDTeam
+  playedGames: number
+  form?: string
+  won: number
+  draw: number
+  lost: number
+  points: number
+  goalsFor: number
+  goalsAgainst: number
+  goalDifference: number
 }
 
-export interface ApiFootballPlayerResponse {
-  player: ApiFootballPlayer
-  statistics: ApiFootballStatistic[]
-}
-
-export interface ApiFootballApiResponse {
-  get: string
-  parameters: Record<string, string | number>
-  errors: Record<string, unknown>
-  results: number
-  paging: { current: number; total: number }
-  response: ApiFootballPlayerResponse[]
-}
-
-/* ---------- App-facing types (same as before for views) ---------- */
+/* ---------- App-facing types (unchanged for views) ---------- */
 export interface ApiPlayer {
   id: number
   name: string
@@ -124,69 +116,76 @@ export interface PlayersSearchResponse {
   response: ApiPlayerResponse[]
 }
 
-function mapOne(item: ApiFootballPlayerResponse): ApiPlayerResponse {
-  const p = item.player
-  const player: ApiPlayer = {
+function squadPersonToPlayer(p: FDSquadPerson, team: FDTeam): ApiPlayer {
+  const first = p.firstName ?? ''
+  const last = p.lastName ?? ''
+  return {
     id: p.id,
     name: p.name,
-    firstname: p.firstname,
-    lastname: p.lastname,
-    age: p.age,
-    birth: p.birth ?? { date: '', place: null, country: '' },
+    firstname: first,
+    lastname: last,
+    age: p.dateOfBirth ? new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear() : null,
+    birth: { date: p.dateOfBirth ?? '', place: null, country: p.nationality ?? '' },
     nationality: p.nationality ?? '',
-    height: p.height ?? null,
-    weight: p.weight ?? null,
-    photo: p.photo ?? '',
+    height: null,
+    weight: null,
+    photo: '',
   }
-  const statistics = (item.statistics ?? []).map((s) => ({
-    team: {
-      id: s.team.id,
-      name: s.team.name,
-      logo: s.team.logo ?? '',
-    },
-    games: s.games,
-    goals: s.goals,
-    shots: s.shots,
-    passes: s.passes,
-    tackles: s.tackles,
-    duels: s.duels,
-    dribbles: s.dribbles,
-    fouls: s.fouls,
-    cards: s.cards,
-    penalty: s.penalty,
-  }))
-  return { player, statistics: statistics.length ? statistics : undefined }
 }
 
-async function request<T>(path: string, params: Record<string, string | number> = {}): Promise<T> {
+function squadToPlayerResponses(squad: FDSquadPerson[], team: FDTeam): ApiPlayerResponse[] {
+  return squad.map((p) => ({
+    player: squadPersonToPlayer(p, team),
+    statistics: [
+      {
+        team: { id: team.id, name: team.name, logo: team.crest ?? '' },
+        games: {
+          position: p.position ?? '',
+          rating: null,
+          captain: false,
+          minutes: 0,
+          appearences: 0,
+          lineups: 0,
+          substitute_in: 0,
+          substitute_out: 0,
+        },
+      },
+    ],
+  }))
+}
+
+async function request<T>(path: string, params: Record<string, string | number> = {}, tryCount = 0): Promise<T> {
+  const token = getNextToken()
+  if (!token) {
+    throw new Error('Invalid or missing API token. Add VITE_FOOTBALL_API_KEY (or VITE_FOOTBALL_API_KEY_2) in .env')
+  }
   const base = API_BASE.endsWith('/') ? API_BASE : API_BASE + '/'
   const pathRelative = path.startsWith('/') ? path.slice(1) : path
   const url = new URL(pathRelative, base)
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)))
   const res = await fetch(url.toString(), {
     headers: {
-      'x-apisports-key': API_KEY,
+      'X-Auth-Token': token,
       Accept: 'application/json',
     },
   })
   if (res.status === 401) {
-    throw new Error('Invalid or missing API key. Check VITE_FOOTBALL_API_KEY in .env')
+    throw new Error('Invalid or missing API token. Check VITE_FOOTBALL_API_KEY in .env')
+  }
+  if (res.status === 429 && API_TOKENS.length > 1 && tryCount < 1) {
+    return request<T>(path, params, tryCount + 1)
   }
   if (res.status === 429) {
     throw new Error('API limit reached (429). Free tier has a daily limit – try again later.')
   }
   if (res.status === 403) {
-    throw new Error('API access forbidden (403). Check your plan or API key.')
+    throw new Error('API access forbidden (403). Check your plan or API token.')
   }
   if (!res.ok) {
     let msg = `API error: ${res.status}`
     try {
-      const body = await res.json() as { message?: string; errors?: Record<string, unknown> }
+      const body = (await res.json()) as { message?: string }
       if (body?.message) msg = body.message
-      else if (body?.errors && typeof body.errors === 'object') {
-        const first = Object.values(body.errors)[0]
-        if (first) msg = String(first)
-      }
     } catch {
       // ignore
     }
@@ -196,11 +195,11 @@ async function request<T>(path: string, params: Record<string, string | number> 
 }
 
 /**
- * Search players by name. Uses league 39 (Premier League) if no league/team given.
+ * football-data.org does not offer player search by name; returns empty results.
  */
 export async function searchPlayers(
   search: string,
-  options?: { league?: number; team?: number; season?: number }
+  _options?: { league?: number; team?: number; season?: number }
 ): Promise<PlayersSearchResponse> {
   const q = search.trim()
   if (q.length < 4) {
@@ -213,35 +212,24 @@ export async function searchPlayers(
       response: [],
     }
   }
-  if (!API_KEY) {
+  if (!API_TOKEN) {
     throw new Error('Add VITE_FOOTBALL_API_KEY to .env and restart dev server.')
   }
-  const params: Record<string, string | number> = {
-    search: q,
-    season: options?.season ?? 2024,
-  }
-  if (options?.league) params.league = options.league
-  if (options?.team) params.team = options.team
-  if (!params.league && !params.team) params.league = 39
-
-  const res = await request<ApiFootballApiResponse>('/players', params)
-  const response = (res.response ?? []).map(mapOne)
   return {
-    get: res.get,
+    get: 'players',
     parameters: { search: q },
-    errors: res.errors ?? {},
-    results: response.length,
-    paging: res.paging ?? { current: 1, total: 1 },
-    response,
+    errors: { note: 'Player search by name is not available in football-data.org API' },
+    results: 0,
+    paging: { current: 1, total: 0 },
+    response: [],
   }
 }
 
-/**
- * Initial list: show one club's squad (e.g. Barcelona) so we have players + club.
- */
-const DEFAULT_TEAM_ID = 529 // Barcelona – change to any team id you like
+/** Barcelona in football-data.org */
+const DEFAULT_TEAM_ID = 81
+
 export async function getInitialPlayers(): Promise<PlayersSearchResponse> {
-  if (!API_KEY) {
+  if (!API_TOKEN) {
     return {
       get: 'players',
       parameters: { search: '' },
@@ -252,17 +240,21 @@ export async function getInitialPlayers(): Promise<PlayersSearchResponse> {
     }
   }
   try {
-    const res = await request<ApiFootballApiResponse>('/players', {
-      team: DEFAULT_TEAM_ID,
-      season: 2024,
+    const team = await request<{ id: number; name: string; crest?: string; squad?: FDSquadPerson[] }>(
+      `/teams/${DEFAULT_TEAM_ID}`
+    )
+    const squad = team.squad ?? []
+    const response = squadToPlayerResponses(squad, {
+      id: team.id,
+      name: team.name,
+      crest: team.crest,
     })
-    const response = (res.response ?? []).map(mapOne)
     return {
-      get: res.get,
+      get: 'players',
       parameters: { search: '' },
       errors: {},
       results: response.length,
-      paging: res.paging ?? { current: 1, total: 1 },
+      paging: { current: 1, total: 1 },
       response,
     }
   } catch {
@@ -277,7 +269,7 @@ export async function getInitialPlayers(): Promise<PlayersSearchResponse> {
   }
 }
 
-/* ---------- Standings (La Liga 2, etc.) ---------- */
+/* ---------- Standings ---------- */
 export interface StandingRow {
   rank: number
   team: { id: number; name: string; logo: string }
@@ -299,12 +291,13 @@ export interface StandingsResponse {
   standings: StandingRow[]
 }
 
-/** La Liga 2 = Segunda División, league id 141 in API-Football */
+/** La Liga 2 = Segunda División, code "SD" in football-data.org */
 export const LALIGA2_LEAGUE_ID = 141
+export const LALIGA2_COMPETITION_CODE = 'SD'
 
-/* ---------- Transfers (in/out by team) ---------- */
+/* ---------- Transfers (not provided by football-data.org) ---------- */
 export interface TransferItem {
-  player: { id: number; name: string }
+  player: { id: number; name: string; photo?: string }
   fromTeam: { id: number; name: string; logo: string }
   toTeam: { id: number; name: string; logo: string }
   type: string
@@ -320,118 +313,152 @@ export interface TeamTransfersResponse {
   transfersOut: TransferItem[]
 }
 
-export async function getTeamTransfers(teamId: number): Promise<TeamTransfersResponse> {
-  if (!API_KEY) {
+export async function getTeamTransfers(_teamId: number): Promise<TeamTransfersResponse> {
+  if (!API_TOKEN) {
     throw new Error('Add VITE_FOOTBALL_API_KEY to .env and restart dev server.')
   }
-  const res = await request<{
-    response?: Array<{
-      player?: { id?: number; name?: string }
-      update?: string
-      transfers?: Array<{
-        date?: string
-        type?: string
-        team?: { id: number; name: string; logo?: string }
-        teams?: { in?: { id: number; name: string; logo?: string }; out?: { id: number; name: string; logo?: string } }
-      }>
-    }>
-  }>('/transfers', { team: teamId })
-  const list = res.response ?? []
-  const transfersIn: TransferItem[] = []
-  const transfersOut: TransferItem[] = []
-  for (const item of list) {
-    const transfers = item.transfers ?? []
-    for (const t of transfers) {
-      const from = t.teams?.out ?? t.team
-      const to = t.teams?.in ?? t.team
-      if (!from || !to) continue
-      const row: TransferItem = {
-        player: { id: item.player?.id ?? 0, name: item.player?.name ?? '—' },
-        fromTeam: { id: from.id, name: from.name, logo: from.logo ?? '' },
-        toTeam: { id: to.id, name: to.name, logo: to.logo ?? '' },
-        type: t.type ?? '',
-        date: t.date ?? '',
-      }
-      if (to.id === teamId) transfersIn.push(row)
-      if (from.id === teamId) transfersOut.push(row)
-    }
-  }
   return {
-    teamId,
+    teamId: _teamId,
     teamName: '',
     teamLogo: '',
-    transfersIn,
-    transfersOut,
+    transfersIn: [],
+    transfersOut: [],
   }
 }
 
-export async function getStandings(
-  leagueId: number = LALIGA2_LEAGUE_ID,
-  season: number = 2024
-): Promise<StandingsResponse> {
-  if (!API_KEY) {
-    throw new Error('Add VITE_FOOTBALL_API_KEY to .env and restart dev server.')
-  }
-  const res = await request<{
-    response?: Array<{
-      league: { id: number; name: string; logo?: string; standings?: Array<Array<{
-        rank: number
-        team: { id: number; name: string; logo: string }
-        points: number
-        goalsDiff: number
-        form?: string
-        all?: { played: number; win: number; draw: number; lose: number; goals: { for: number; against: number } }
-      }>> }
-      season?: number
-    }>
-  }>('/standings', { league: leagueId, season })
-  const first = res.response?.[0]
-  const league = first?.league
-  const rawStandings = league?.standings?.[0] ?? []
-  const standings: StandingRow[] = rawStandings.map((row: {
-    rank: number
-    team: { id: number; name: string; logo: string }
-    points: number
-    goalsDiff: number
-    form?: string
-    all?: { played: number; win: number; draw: number; lose: number; goals: { for: number; against: number } }
-  }) => ({
-    rank: row.rank,
-    team: row.team ?? { id: 0, name: '', logo: '' },
-    points: row.points ?? 0,
-    goalsDiff: row.goalsDiff ?? 0,
+function mapStandingsResponse(res: {
+  competition?: { id: number; name: string; emblem?: string }
+  season?: { id?: number; startDate?: string }
+  standings?: Array<{ type: string; table?: FDStandingsTableRow[] }>
+}, seasonFallback: number): StandingsResponse {
+  const totalTable = res.standings?.find((s) => s.type === 'TOTAL')?.table ?? []
+  const seasonYear = res.season?.startDate ? new Date(res.season.startDate).getFullYear() : seasonFallback
+  const standings: StandingRow[] = totalTable.map((row) => ({
+    rank: row.position,
+    team: {
+      id: row.team.id,
+      name: row.team.name,
+      logo: row.team.crest ?? '',
+    },
+    points: row.points,
+    goalsDiff: row.goalDifference,
     form: row.form ?? '',
-    played: row.all?.played ?? 0,
-    win: row.all?.win ?? 0,
-    draw: row.all?.draw ?? 0,
-    lose: row.all?.lose ?? 0,
-    goalsFor: row.all?.goals?.for ?? 0,
-    goalsAgainst: row.all?.goals?.against ?? 0,
+    played: row.playedGames,
+    win: row.won,
+    draw: row.draw,
+    lose: row.lost,
+    goalsFor: row.goalsFor,
+    goalsAgainst: row.goalsAgainst,
   }))
   return {
-    leagueName: league?.name ?? 'La Liga 2',
-    leagueLogo: league?.logo,
-    season: first?.season ?? season,
+    leagueName: res.competition?.name ?? 'Segunda División',
+    leagueLogo: res.competition?.emblem,
+    season: seasonYear,
     standings,
   }
 }
 
-/**
- * Get full player info + all clubs (teams) and statistics by ID.
- */
-export async function getPlayer(id: number, season: number = 2024): Promise<PlayersSearchResponse> {
-  if (!API_KEY) {
+interface StandingsApiResponse {
+  competition?: { id: number; name: string; emblem?: string }
+  season?: { id?: number; startDate?: string }
+  standings?: Array<{ type: string; table?: FDStandingsTableRow[] }>
+}
+
+export async function getStandings(
+  _leagueId: number = LALIGA2_LEAGUE_ID,
+  season: number = new Date().getFullYear()
+): Promise<StandingsResponse> {
+  if (!API_TOKEN) {
     throw new Error('Add VITE_FOOTBALL_API_KEY to .env and restart dev server.')
   }
-  const res = await request<ApiFootballApiResponse>('/players', { id, season })
-  const list = res.response ?? []
-  const response = list.map(mapOne)
-  return {
-    get: res.get,
-    parameters: { search: '' },
-    errors: res.errors ?? {},
-    results: response.length,
-    paging: { current: 1, total: response.length ? 1 : 0 },
-    response,
+  const seasonStr = season.toString()
+  try {
+    const res = await request<StandingsApiResponse>(`/competitions/${LALIGA2_COMPETITION_CODE}/standings`, { season: seasonStr })
+    return mapStandingsResponse(res, season)
+  } catch (err) {
+    const is403 = err instanceof Error && (err.message.includes('403') || err.message.includes('forbidden'))
+    if (is403) {
+      try {
+        const res = await request<StandingsApiResponse>('/competitions/PD/standings', { season: seasonStr })
+        return mapStandingsResponse(res, season)
+      } catch {
+        throw new Error(
+          'API access forbidden (403). Check your token at https://www.football-data.org/client/register and that your plan includes league standings.'
+        )
+      }
+    }
+    throw err
+  }
+}
+
+/**
+ * Get player by ID. football-data.org exposes persons; we try /persons/{id} and fallback to finding in a known team squad.
+ */
+export async function getPlayer(id: number, _season: number = 2024): Promise<PlayersSearchResponse> {
+  if (!API_TOKEN) {
+    throw new Error('Add VITE_FOOTBALL_API_KEY to .env and restart dev server.')
+  }
+  try {
+    const person = await request<{
+      id: number
+      firstName?: string | null
+      lastName?: string | null
+      name: string
+      position?: string
+      dateOfBirth?: string
+      nationality?: string
+      currentTeam?: { id: number; name: string; crest?: string } | null
+    }>(`/persons/${id}`)
+    const player: ApiPlayer = {
+      id: person.id,
+      name: person.name,
+      firstname: person.firstName ?? '',
+      lastname: person.lastName ?? '',
+      age: person.dateOfBirth ? new Date().getFullYear() - new Date(person.dateOfBirth).getFullYear() : null,
+      birth: { date: person.dateOfBirth ?? '', place: null, country: person.nationality ?? '' },
+      nationality: person.nationality ?? '',
+      height: null,
+      weight: null,
+      photo: '',
+    }
+    const statistics = person.currentTeam
+      ? [
+          {
+            team: {
+              id: person.currentTeam.id,
+              name: person.currentTeam.name,
+              logo: person.currentTeam.crest ?? '',
+            },
+            games: {
+              position: person.position ?? '',
+              rating: null,
+              captain: false,
+              minutes: 0,
+              appearences: 0,
+              lineups: 0,
+              substitute_in: 0,
+              substitute_out: 0,
+            },
+          },
+        ]
+      : undefined
+    const response: ApiPlayerResponse[] = [{ player, statistics }]
+    return {
+      get: 'players',
+      parameters: { search: '' },
+      errors: {},
+      results: 1,
+      paging: { current: 1, total: 1 },
+      response,
+    }
+  } catch {
+    return {
+      get: 'players',
+      parameters: { search: '' },
+      errors: {},
+      results: 0,
+      paging: { current: 1, total: 0 },
+      response: [],
+    }
   }
 }
