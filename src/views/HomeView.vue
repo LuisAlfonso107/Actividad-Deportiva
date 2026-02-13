@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useFavoritesStore } from '../stores/favorites'
 import { useApiErrorStore } from '../stores/apiError'
 import { searchPlayers, getInitialPlayers } from '../services/footballApi'
+import { getBarcelonaPlayersWithPhotos, searchPlayersTheSportsDB } from '../services/thesportsdb'
 import type { ApiPlayerResponse } from '../services/footballApi'
 
 const router = useRouter()
@@ -22,7 +23,12 @@ const hasFavorites = computed(() => favorites.length > 0)
 
 onMounted(async () => {
   try {
-    const res = await getInitialPlayers()
+    let res
+    try {
+      res = await getBarcelonaPlayersWithPhotos()
+    } catch {
+      res = await getInitialPlayers()
+    }
     searchResults.value = res.response ?? []
     if (searchResults.value.length === 0 && !searchQuery.value.trim()) {
       searchError.value = 'Add VITE_FOOTBALL_API_KEY to .env and restart the dev server.'
@@ -49,9 +55,15 @@ async function runSearch() {
   searchResults.value = []
   showResultsList.value = true
   try {
-    const res = await searchPlayers(q)
-    searchResults.value = res.response ?? []
-    if (searchResults.value.length === 0 && res.results === 0) {
+    const [resFootball, resTheSportsDB] = await Promise.all([
+      searchPlayers(q).catch(() => ({ response: [] as ApiPlayerResponse[], results: 0 })),
+      searchPlayersTheSportsDB(q).catch(() => ({ response: [] as ApiPlayerResponse[], results: 0 })),
+    ])
+    const fromFootball = resFootball.response ?? []
+    const fromTheSportsDB = resTheSportsDB.response ?? []
+    const merged = [...fromFootball, ...fromTheSportsDB]
+    searchResults.value = merged
+    if (merged.length === 0) {
       searchError.value = 'No players found'
     }
   } catch (e) {
@@ -109,6 +121,13 @@ function isFavorite(id: number) {
 function analyseFavorite(id: number) {
   analysePlayer(id)
 }
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  if (parts[0]?.length >= 2) return parts[0].slice(0, 2).toUpperCase()
+  return parts[0]?.[0]?.toUpperCase() ?? '?'
+}
 </script>
 
 <template>
@@ -140,7 +159,8 @@ function analyseFavorite(id: number) {
         </ul>
         <ul v-else-if="searchResults.length > 0" class="player-list">
           <li v-for="item in searchResults" :key="item.player.id" class="player-card">
-            <img :src="item.player.photo" :alt="item.player.name" class="thumb" />
+            <img v-if="item.player.photo" :src="item.player.photo" :alt="item.player.name" class="thumb" />
+            <div v-else class="thumb thumb-placeholder" :aria-label="item.player.name">{{ initials(item.player.name) }}</div>
             <div class="details">
               <strong>{{ item.player.name }}</strong>
               <span v-if="item.statistics?.[0]?.team" class="team">
@@ -177,7 +197,8 @@ function analyseFavorite(id: number) {
       <h2>Your favorite players</h2>
       <ul class="favorites-list">
         <li v-for="p in favorites" :key="p.id" class="favorite-card">
-          <img :src="p.photo" :alt="p.name" class="thumb" />
+          <img v-if="p.photo" :src="p.photo" :alt="p.name" class="thumb" />
+          <div v-else class="thumb thumb-placeholder" :aria-label="p.name">{{ initials(p.name) }}</div>
           <div class="details">
             <strong>{{ p.name }}</strong>
             <span v-if="p.team" class="team">{{ p.team }}</span>
@@ -302,6 +323,16 @@ h1 {
   object-fit: contain;
   border-radius: 8px;
   background: var(--color-background-mute);
+}
+.thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  opacity: 0.9;
+  flex-shrink: 0;
 }
 .details {
   flex: 1;

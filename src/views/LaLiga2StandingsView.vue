@@ -2,7 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useApiErrorStore } from '../stores/apiError'
-import { getStandings, type StandingsResponse, type StandingRow } from '../services/footballApi'
+import { getLaLigaStandings } from '../services/thesportsdb'
+import type { StandingsResponse, StandingRow } from '../services/footballApi'
 
 const router = useRouter()
 const apiErrorStore = useApiErrorStore()
@@ -12,7 +13,7 @@ const data = ref<StandingsResponse | null>(null)
 
 onMounted(async () => {
   try {
-    data.value = await getStandings()
+    data.value = await getLaLigaStandings()
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to load standings'
     error.value = msg
@@ -34,7 +35,7 @@ function goToTeamTransfers(row: StandingRow) {
 <template>
   <main class="standings-page">
     <h1>Clasificación La Liga 2</h1>
-    <p class="subtitle">Segunda División – Temporada {{ data?.season ?? '—' }}</p>
+    <p class="subtitle">{{ data?.leagueName ?? 'Segunda División' }} – Temporada {{ data?.season ?? new Date().getFullYear() }}</p>
 
     <div v-if="loading" class="loading">Cargando clasificación…</div>
     <div v-else-if="error" class="error">{{ error }}</div>
