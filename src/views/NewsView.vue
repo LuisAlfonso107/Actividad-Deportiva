@@ -1,169 +1,97 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
-import type { NewsArticle } from "../services/newsApiLaLiga2"
-import type { TransferNews } from "../services/newsApiTransfers"
-import { getLaLiga2News } from "../services/newsApiLaLiga2"
-import { getTransferNews } from "../services/newsApiTransfers"
+import { ref, computed, onMounted } from "vue"
+import type { FootballNewsArticle } from "../services/newsApiFootballScrapingBee"
+import { getFootballNews } from "../services/newsApiFootballScrapingBee"
 
-type TabType = "laliga2" | "transfers"
-
-const activeTab = ref<TabType>("laliga2")
-
-// Noticias estáticas iniciales para que el usuario las vea inmediatamente (como en el diseño)
-const staticNews: NewsArticle[] = [
-  {
-    id: 's1',
-    title: 'La inflación de los traspasos llega a la cantera',
-    description: 'El precio de los juveniles se dispara tras el interés de clubes internacionales por el talento español.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDiIub-Ykm0A07nqJ4vInExYIc6qKs3yQjnDN7xpSCen60dV7YeiqLBBNt0-OFtUGxISseWrAdz0UQn9Hbu-UcqBI9xbUPJWQqX4n_VQbYE-ChFhcFg5KFNjTTcJrCiatPnsorsUZTTDX0-xxFhZyOFBtZ97kCxTxXfRA7l3lzr0PvjqkMA3sovJYDsDz4cTh8kPdJbUqu1nDTYCkzWOHFbQ4VzTipwPcSM0LlL8lTZSGhZZon87z2BszvOr6CHFgbJUPra2oi0dHc',
-    date: 'Hace 2 horas'
-  },
-  {
-    id: 's2',
-    title: 'Claves para destacar en las pruebas de captación',
-    description: 'Analizamos qué buscan los ojeadores de los grandes clubes durante los torneos regionales de este mes.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBfQ0TeKyGHGea7FsCmye-ZojlO9wVzU4p2KDI3YMihDB13ibgYkHva5hhWUieH9fKy9ri0V41FmsgtMyVxhCR5zQzGDWrGJJoIi73ataQqMbVt0fO8wnbIuR5G8SxZ356tpKBsQO2XdHwgVpW7umsIVPnBmmmF3srd-56AEwWfzt3ohP7kGoXsvDxW6xd3ZXh_gsVKk2u686J3Z2YeWon1niq-wvHYfKn1VmKeiQ9eTi9uSAfy1fEAc_Mmcwx4IKu1iVmYzQVOMVM',
-    date: 'Hace 5 horas'
-  },
-  {
-    id: 's3',
-    title: 'Big Data: El nuevo aliado de los representantes',
-    description: 'Cómo las métricas avanzadas están cambiando la forma en que se presentan los perfiles a los clubes.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCI6OKJT2q69fpQgm-29XghlsSd5w5QlaBQgBfavNawo8oA2AwzNgA36oj-JClfm81_t8LcCMjHWDVQx_exD296ONfC_0G4WZY4r0So3v0sGfKnzzzkaH5qcGDJzdofx3G2ox_Hk767-IlXeJnuBp67RSA7Vye6Cc7fayWbIvYsL3J8pmSPkGdO1oiXHk433-n9a6rzu0DLJ6Hzbt87QElynojKE8Awb6qkobb7kYVdtkQt9SJE149cKc5ISSCIeG7OIF4m86C4xU0',
-    date: 'Ayer'
-  },
-  {
-    id: 's4',
-    title: 'Abiertas las inscripciones: Kaboom Show 2024',
-    description: 'El mayor evento de reclutamiento de España abre sus puertas en Madrid para ojeadores internacionales.',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDLngSFXjB9H5f8pj0Uow_RZa78oq5Awad7-llCmpxNz3NgmfZAao2lVHoAXEEjQhl2NG2o3WBfGM60LdzppLIUc5wZe0UppthoCH-VCEbxH5PbKVWXK-PRs3V2_J7cC0FH7X5QY1V__Y06srUt44TN7ZReFs8ooOIsNZBMTtuxdamD-GLmT3XApy0sjGsZeY9nvG5THPAWr0NXYSUfzKsW-SCrISODahlxipRTwgkwo_4wwK5u8A_KFZWvsJ-9-m7QWxG7r3Lw2xA',
-    date: 'Ayer'
-  },
-  {
-    id: 's5',
-    title: 'Nuevas metodologías en el fútbol base',
-    description: 'Los clubes de élite están cambiando sus sistemas de entrenamiento para potenciar la creatividad individual.',
-    image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    date: 'Hace 8 horas'
-  },
-  {
-    id: 's6',
-    title: 'Impacto del Brexit en el mercado de fichajes',
-    description: 'Cómo las nuevas normativas están afectando el flujo de talento joven entre España e Inglaterra.',
-    image: 'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    date: 'Ayer'
-  },
-  {
-    id: 's7',
-    title: 'La salud mental en el deporte de élite',
-    description: 'Kaboomfot lanza una iniciativa para monitorizar el bienestar emocional de los jugadores en formación.',
-    image: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    date: 'Hace 2 días'
-  },
-  {
-    id: 's8',
-    title: 'Nuevas instalaciones en la Ciudad Deportiva',
-    description: 'El proyecto de expansión incluye tecnología de última generación para la recuperación de lesiones.',
-    image: 'https://images.unsplash.com/photo-1526232761682-d26e03ac148e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    date: 'Hace 3 días'
-  }
-]
-
-const laliga2News = ref<NewsArticle[]>([])
-const transferNews = ref<TransferNews[]>([])
+const footballNews = ref<FootballNewsArticle[]>([])
 const loading = ref(true)
 const visibleCount = ref(4)
 
+/** Latest news for the hero section (first item from API) */
+const heroArticle = computed<FootballNewsArticle | null>(() =>
+  footballNews.value[0] ?? null
+)
+
+/** Rest of the news (skip first so it's not duplicated in the grid) */
+const displayedNews = (): FootballNewsArticle[] => footballNews.value.slice(1)
+
 onMounted(async () => {
   try {
-    const [laliga2Data, transferData] = await Promise.all([
-      getLaLiga2News(),
-      getTransferNews()
-    ])
-    
-    // Combinamos: Estáticas primero para mantener el diseño solicitado, luego las dinámicas
-    laliga2News.value = [...staticNews, ...laliga2Data]
-    transferNews.value = transferData
+    footballNews.value = await getFootballNews()
   } catch (error) {
     console.error("Error cargando noticias:", error)
-    // Si falla la API, al menos mostramos las estáticas
-    laliga2News.value = staticNews
+    footballNews.value = []
   } finally {
     loading.value = false
   }
 })
 
-const displayedNews = () => {
-  return activeTab.value === "laliga2" ? laliga2News.value : transferNews.value
-}
-
 const loadMore = () => {
   visibleCount.value += 4
 }
 
-const getCategory = (index: number, article: any) => {
-  if (activeTab.value === 'transfers') return 'Mercado'
-  // Si es una de las estáticas originales, mantenemos sus categorías
-  if (index < 4) {
-    const categories = ['Mercado', 'Cantera', 'Análisis', 'Eventos']
-    return categories[index % categories.length]
-  }
-  return 'LaLiga 2'
-}
+const getCategory = () => "Fútbol"
 
-const getCategoryColor = (index: number, article: any) => {
-  if (activeTab.value === 'transfers') return 'bg-secondary'
-  if (index < 4) {
-    const colors = ['bg-[#0f172a]', 'bg-primary', 'bg-blue-600', 'bg-pink-500']
-    return colors[index % colors.length]
-  }
-  return 'bg-slate-500'
-}
+const getCategoryColor = () => "bg-emerald-600"
 
-const getSource = (index: number, article: any) => {
-  if (index < 4) {
-    const sources = ['ADMIN', 'SCOUTING TEAM', 'TECH LAB', 'EVENTOS']
-    return sources[index % sources.length]
-  }
-  return (article as any).source || 'KABOOMFOT'
-}
+const getSource = (_index: number, article: FootballNewsArticle) => article.source || "Fútbol"
 
-const getDate = (index: number, article: any) => {
-  if (index < 4) return article.date.toUpperCase()
-  return article.date ? article.date.toUpperCase() : 'RECIENTE'
-}
+const getDate = (_index: number, article: FootballNewsArticle) =>
+  article.date ? String(article.date).toUpperCase() : "RECIENTE"
 </script>
 
 <template>
   <div class="font-body text-slate-900 dark:text-slate-100 transition-colors duration-300">
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
-      <!-- HERO SECTION -->
+      <!-- HERO SECTION (latest news from API) -->
       <section class="mb-12">
         <div class="relative rounded-[2rem] overflow-hidden group h-[500px]">
-          <img alt="Estadio de fútbol"
+          <img
+            v-if="heroArticle?.image"
+            :src="heroArticle.image"
+            :alt="heroArticle.title"
             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTASgKon8Di4AGkjvsMe_YMdQQwdxfi-tBgkvCBQKranXQoQwAmuk-OTbJh5mckEiM69PNlDBW03hBtGVamlQkVVUsinvE8AvmUINkXGOI2EfKnlfH2ilu501qx0uScAIQrbeNgj3jdbN7XazlX23WHbb3_uAIBR-VB7iYdaM7br6t_9kV0TcJr2gQ4UjuQRnoAjwBhi3e83IoeL8WSBEQN6CqproyGod5IVD5dowXd0xqgTw1b6kv79Ng_Gy4b4Ksqz2IZ4b2Yk4" />
+          />
+          <img
+            v-else
+            alt="Estadio de fútbol"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1600&q=80"
+          />
           <div class="absolute inset-0 hero-article-gradient"></div>
           <div class="absolute bottom-0 left-0 p-8 md:p-12 w-full md:w-2/3">
             <span
-              class="inline-block bg-primary text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest mb-4">BREAKING
-              NEWS</span>
+              class="inline-block bg-primary text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest mb-4"
+            >
+              BREAKING NEWS
+            </span>
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-black text-white leading-tight mb-4">
-              Nueva Alianza Estratégica para el Scouting en España
+              {{ heroArticle?.title || "Últimas noticias de fútbol" }}
             </h1>
             <p class="text-slate-200 text-lg mb-6 line-clamp-2">
-              Kaboomfot anuncia un acuerdo con los principales clubes de Segunda División para digitalizar el
-              seguimiento de talentos sub-17.
+              {{ heroArticle?.description || "Cargando las últimas noticias del mundo del fútbol." }}
             </p>
             <div class="flex items-center gap-4 text-white">
               <span class="flex items-center gap-1 text-sm font-semibold">
-                <span class="material-symbols-rounded text-sm">schedule</span> Hace 25 min
+                <span class="material-symbols-rounded text-sm">schedule</span>
+                {{ heroArticle?.date || "Reciente" }}
               </span>
-              <button
-                class="bg-white text-secondary font-black py-3 px-8 rounded-xl hover:bg-primary hover:text-white transition-all shadow-lg transform hover:-translate-y-1 uppercase tracking-widest">
+              <a
+                v-if="heroArticle?.url"
+                :href="heroArticle.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bg-white text-secondary font-black py-3 px-8 rounded-xl hover:bg-primary hover:text-white transition-all shadow-lg transform hover:-translate-y-1 uppercase tracking-widest inline-block"
+              >
                 LEER MÁS
-              </button>
+              </a>
+              <span
+                v-else
+                class="bg-white text-secondary font-black py-3 px-8 rounded-xl uppercase tracking-widest inline-block cursor-default"
+              >
+                LEER MÁS
+              </span>
             </div>
           </div>
         </div>
@@ -187,22 +115,6 @@ const getDate = (index: number, article: any) => {
                 </button>
               </div>
 
-              <div class="hidden sm:flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                 <button 
-                  @click="activeTab = 'laliga2'; visibleCount = 4"
-                  :class="[
-                    'px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all',
-                    activeTab === 'laliga2' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500'
-                  ]"
-                 >LaLiga 2</button>
-                 <button 
-                  @click="activeTab = 'transfers'; visibleCount = 4"
-                  :class="[
-                    'px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all',
-                    activeTab === 'transfers' ? 'bg-white dark:bg-slate-700 text-secondary shadow-sm' : 'text-slate-500'
-                  ]"
-                 >Fichajes</button>
-              </div>
             </div>
           </div>
 
@@ -210,6 +122,13 @@ const getDate = (index: number, article: any) => {
           <div v-if="loading && displayedNews().length === 0" class="flex flex-col items-center justify-center py-20">
             <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
             <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Cargando...</p>
+          </div>
+
+          <!-- Empty State (API returned no news) -->
+          <div v-else-if="!loading && displayedNews().length === 0" class="flex flex-col items-center justify-center py-20 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+            <span class="material-symbols-rounded text-5xl text-slate-300 dark:text-slate-600 mb-4">newspaper</span>
+            <p class="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">No hay noticias por ahora</p>
+            <p class="text-slate-400 dark:text-slate-500 text-sm mt-2">Comprueba que VITE_SCRAPINGBEE_API_KEY esté en .env y que la API tenga créditos.</p>
           </div>
 
           <!-- Noticias Grid -->
