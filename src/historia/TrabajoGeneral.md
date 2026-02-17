@@ -137,6 +137,7 @@ Esta evaluación se realizó revisando el código actual del repositorio (views,
 
 
 - Requisito de mínimo **5 tests**: actualmente solo hay **1 test** (`src/components/__tests__/HelloWorld.spec.ts`).
+- Uso de `<Suspense/>` para manejo asíncrono: no se encontró evidencia en el código.
 - Uso de `provide/inject`: no se encontró evidencia en el código.
 - Requisito de incluir al menos un **composable** dedicado: no se encontró carpeta/archivo de composables propio.
 - Evidencia de ramas Git obligatorias (`main`, `developer`, ramas por tarea): no verificable desde el código fuente revisado.
@@ -148,3 +149,104 @@ Esta evaluación se realizó revisando el código actual del repositorio (views,
 #### Resumen de estado
 
 El proyecto está funcional en su núcleo (SPA, rutas, autenticación, consumo de APIs, estado global y parte de CRUD), pero aún no cumple completamente varios criterios formales de evaluación técnica y de proceso. Los principales gaps actuales son: **type-check con errores**, **falta de DELETE**, **cobertura de tests insuficiente** y **ausencia de evidencias de Suspense/composable/proceso Scrum-documental**.
+
+## Estructura de Carpetas del Proyecto
+
+```text
+Actividad-Deportiva/
+├── .env
+├── .env.example
+├── AGENTS.md
+├── AGENT_SETUP.md
+├── DOCUMENTACION.md
+├── README.md
+├── documentacion.html
+├── env.d.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── project/
+│   ├── instructions/
+│   ├── instructions.md
+│   ├── kanban.md
+│   └── stories/
+├── public/
+│   └── favicon.ico
+├── src/
+│   ├── App.vue
+│   ├── assets/
+│   │   ├── base.css
+│   │   ├── logo.svg
+│   │   └── main.css
+│   ├── components/
+│   │   ├── AppFooter.vue
+│   │   ├── HelloWorld.vue
+│   │   ├── TheWelcome.vue
+│   │   ├── WelcomeItem.vue
+│   │   ├── __tests__/
+│   │   │   └── HelloWorld.spec.ts
+│   │   └── icons/
+│   │       ├── IconCommunity.vue
+│   │       ├── IconDocumentation.vue
+│   │       ├── IconEcosystem.vue
+│   │       ├── IconSupport.vue
+│   │       └── IconTooling.vue
+│   ├── historia/
+│   │   ├── TrabajoGeneral.md
+│   │   ├── tarea1.md
+│   │   ├── tarea2.md
+│   │   ├── tarea3.md
+│   │   └── tareaAnuncio.md
+│   ├── main.ts
+│   ├── router/
+│   │   └── index.ts
+│   ├── server/
+│   │   └── db.json
+│   ├── services/
+│   │   ├── footballApi.ts
+│   │   └── thesportsdb.ts
+│   ├── stores/
+│   │   ├── apiError.ts
+│   │   ├── auth.ts
+│   │   ├── counter.ts
+│   │   └── favorites.ts
+│   └── views/
+│       ├── AboutView.vue
+│       ├── FavoritesView.vue
+│       ├── HomeView.vue
+│       ├── LaLiga2StandingsView.vue
+│       ├── LoginView.vue
+│       ├── MarketView.vue
+│       ├── NewsView.vue
+│       ├── PlayerAnalysisView.vue
+│       ├── PlayerView.vue
+│       ├── PlayersView.vue
+│       ├── ProfileView.vue
+│       ├── RegisterView.vue
+│       ├── SettingsView.vue
+│       └── TeamTransfersView.vue
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── tsconfig.vitest.json
+├── vite.config.ts
+└── vitest.config.ts
+```
+
+### Explicación breve por carpeta
+
+- `public/`: Archivos estáticos públicos que se copian tal cual en el build.
+- `project/`: Material de apoyo del entorno (instrucciones e historias auxiliares del flujo de trabajo).
+- `src/`: Código fuente principal de la aplicación Vue.
+- `src/assets/`: Estilos e imágenes usadas por la app (`base.css`, `main.css`, logos).
+- `src/components/`: Componentes reutilizables de interfaz.
+- `src/components/__tests__/`: Pruebas unitarias de componentes con Vitest.
+- `src/components/icons/`: Componentes de iconos SVG.
+- `src/historia/`: Documentación funcional del proyecto (historias de usuario, tareas y estado general).
+- `src/router/`: Configuración de rutas y guardas de navegación.
+- `src/server/`: Datos locales para `json-server` (`db.json`) que simulan backend.
+- `src/services/`: Lógica de consumo de APIs externas (fútbol, clasificaciones, jugadores, etc.).
+- `src/stores/`: Stores de Pinia para estado global (auth, favoritos, errores).
+- `src/views/`: Páginas principales de la SPA (Home, Login, Register, Profile, etc.).
+
+Nota: se omite el detalle interno de `.git` y `node_modules` por tamaño.

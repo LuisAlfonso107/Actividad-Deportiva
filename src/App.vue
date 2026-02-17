@@ -1,51 +1,24 @@
 <script setup lang="ts">
 import { Suspense } from 'vue'
 import { storeToRefs } from 'pinia'
-import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { RouterLink, RouterView } from 'vue-router'
+import { ref, watch } from 'vue'
 import AppFooter from './components/AppFooter.vue'
 import { useApiErrorStore } from './stores/apiError'
 import { useAuthStore } from './stores/auth'
+import { useRegisterAlert } from './composable/useRegisterAlert'
 
 const apiError = useApiErrorStore()
 const authStore = useAuthStore()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const router = useRouter()
+const { message: apiErrorMessage } = storeToRefs(apiError)
 
-const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
-
-const showRegisterAlert = ref(false)
-let alertInterval: ReturnType<typeof setInterval> | null = null
-
-function startAlertTimer() {
-  if (alertInterval) return
-  alertInterval = setInterval(() => {
-    if (!isAuthenticated.value) {
-      showRegisterAlert.value = true
-    }
-  }, 10000)
-}
-
-function stopAlertTimer() {
-  if (alertInterval) {
-    clearInterval(alertInterval)
-    alertInterval = null
-  }
-}
-
-function closeAlert() {
-  showRegisterAlert.value = false
-}
-
-function goToRegister() {
-  closeAlert()
-  router.push('/register')
-}
-
-function goToLogin() {
-  closeAlert()
-  router.push('/login')
-}
+const {
+  showRegisterAlert,
+  closeAlert,
+  goToRegister,
+  goToLogin,
+} = useRegisterAlert()
 
 const profileText = ref('Mi Perfil')
 
@@ -56,25 +29,6 @@ watch([isAuthenticated, user], () => {
     profileText.value = 'Iniciar sesión'
   }
 }, { immediate: true })
-
-onMounted(() => {
-  if (!isAuthenticated.value) {
-    startAlertTimer()
-  }
-})
-
-onUnmounted(() => {
-  stopAlertTimer()
-})
-
-watch(isAuthenticated, (newValue) => {
-  if (newValue) {
-    stopAlertTimer()
-    showRegisterAlert.value = false
-  } else {
-    startAlertTimer()
-  }
-})
 </script>
 
 <template>
@@ -205,5 +159,20 @@ watch(isAuthenticated, (newValue) => {
   font-weight: 600;
   color: var(--color-text);
   opacity: 0.7;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
 }
 </style>
