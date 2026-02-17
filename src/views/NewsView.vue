@@ -30,9 +30,9 @@ const loadMore = () => {
   visibleCount.value += 4
 }
 
-const getCategory = () => "Fútbol"
+const getCategory = (_index?: number, _article?: FootballNewsArticle) => "Fútbol"
 
-const getCategoryColor = () => "bg-emerald-600"
+const getCategoryColor = (_index?: number, _article?: FootballNewsArticle) => "bg-emerald-600"
 
 const getSource = (_index: number, article: FootballNewsArticle) => article.source || "Fútbol"
 

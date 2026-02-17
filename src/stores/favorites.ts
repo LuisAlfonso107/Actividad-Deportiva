@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import * as favoritesApi from '../services/favoritesApi'
 
 export interface FavoritePlayer {
   id: number
@@ -7,6 +8,8 @@ export interface FavoritePlayer {
   photo: string
   team?: string
   teamLogo?: string
+  /** Server row id (json-server) for DELETE */
+  _rowId?: number
 }
 
 const STORAGE_KEY = 'favorite-players'
@@ -23,7 +26,19 @@ function loadFromStorage(): FavoritePlayer[] {
 }
 
 function saveToStorage(players: FavoritePlayer[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(players))
+  const toSave = players.map(({ _rowId, ...p }) => p)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
+}
+
+function rowToPlayer(row: { id?: number; playerId: number; name: string; photo: string; team?: string; teamLogo?: string }): FavoritePlayer {
+  return {
+    id: row.playerId,
+    name: row.name,
+    photo: row.photo,
+    team: row.team,
+    teamLogo: row.teamLogo,
+    _rowId: row.id,
+  }
 }
 
 export const useFavoritesStore = defineStore('favorites', () => {
@@ -31,13 +46,39 @@ export const useFavoritesStore = defineStore('favorites', () => {
 
   const favorites = computed(() => list.value)
 
-  function add(player: FavoritePlayer) {
-    if (list.value.some((p) => p.id === player.id)) return
-    list.value = [...list.value, player]
-    saveToStorage(list.value)
+  /** Load favorites from server (json-server). Falls back to existing list if server fails. */
+  async function fetchFavorites() {
+    try {
+      const rows = await favoritesApi.getFavorites()
+      list.value = rows.map(rowToPlayer)
+      saveToStorage(list.value)
+    } catch {
+      // Keep current list (e.g. from localStorage)
+    }
   }
 
-  function remove(id: number) {
+  async function add(player: Omit<FavoritePlayer, '_rowId'>) {
+    if (list.value.some((p) => p.id === player.id)) return
+    try {
+      const row = await favoritesApi.addFavorite(player)
+      list.value = [...list.value, rowToPlayer(row)]
+      saveToStorage(list.value)
+    } catch {
+      // Offline/server down: keep local only
+      list.value = [...list.value, { ...player }]
+      saveToStorage(list.value)
+    }
+  }
+
+  async function remove(id: number) {
+    const item = list.value.find((p) => p.id === id)
+    if (item?._rowId != null) {
+      try {
+        await favoritesApi.removeFavoriteByRowId(item._rowId)
+      } catch {
+        // continue to remove from list
+      }
+    }
     list.value = list.value.filter((p) => p.id !== id)
     saveToStorage(list.value)
   }
@@ -51,5 +92,5 @@ export const useFavoritesStore = defineStore('favorites', () => {
     else add(player)
   }
 
-  return { favorites, add, remove, isFavorite, toggle }
+  return { favorites, add, remove, isFavorite, toggle, fetchFavorites }
 })

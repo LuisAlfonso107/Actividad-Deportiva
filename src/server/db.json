@@ -1,0 +1,21 @@
+{
+  "users": [
+    {
+      "id": "2308",
+      "email": "hola@gmail.com",
+      "password": "Hola123",
+      "name": "Yeremi",
+      "phone": "988546"
+    }
+  ],
+  "favorites": [
+    {
+      "id": "f44b",
+      "playerId": 34195193,
+      "name": "Alti",
+      "photo": "https://r2.thesportsdb.com/images/media/player/thumb/u5vyfo1659965385.jpg",
+      "team": "Deportivo de La Coruña",
+      "teamLogo": ""
+    }
+  ]
+}

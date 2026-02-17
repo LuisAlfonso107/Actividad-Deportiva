@@ -209,6 +209,45 @@ export async function searchPlayersTheSportsDB(q: string): Promise<PlayersSearch
   }
 }
 
+/** Cached La Liga 2 team IDs (TheSportsDB) so search can filter by league. */
+let laliga2TeamIdsCache: Set<number> | null = null
+
+/**
+ * Get the set of TheSportsDB team IDs that belong to La Liga 2 (from league table).
+ * Result is cached for the session.
+ */
+export async function getLaLiga2TeamIds(): Promise<Set<number>> {
+  if (laliga2TeamIdsCache != null) return laliga2TeamIdsCache
+  const { standings } = await getLaLigaStandings(THESPORTSDB_LALIGA2_LEAGUE_ID)
+  laliga2TeamIdsCache = new Set(standings.map((row) => row.team.id).filter(Boolean))
+  return laliga2TeamIdsCache
+}
+
+/**
+ * Search players by name and return only those in La Liga 2 (Segunda División).
+ * Uses TheSportsDB search then filters by La Liga 2 team IDs.
+ */
+export async function searchPlayersLaLiga2(q: string): Promise<PlayersSearchResponse> {
+  const [teamIds, res] = await Promise.all([
+    getLaLiga2TeamIds(),
+    searchPlayersTheSportsDB(q),
+  ])
+  const all = res.response ?? []
+  const filtered = all.filter((item) => {
+    const teamId = item.statistics?.[0]?.team?.id
+    const hasPhoto = (item.player?.photo ?? '').trim() !== ''
+    return teamId != null && teamIds.has(teamId) && hasPhoto
+  })
+  return {
+    get: res.get,
+    parameters: res.parameters,
+    errors: res.errors,
+    results: filtered.length,
+    paging: { current: 1, total: filtered.length },
+    response: filtered,
+  }
+}
+
 /**
  * Get Barcelona squad with player photos from TheSportsDB (for home page initial list).
  * Free tier: 10 requests per minute for list endpoints.
@@ -282,34 +321,31 @@ export async function getBarcelonaPlayersWithPhotos(): Promise<PlayersSearchResp
 }
 
 /**
- * Get Real Zaragoza squad with player photos from TheSportsDB (for home page initial list - La Liga 2).
- * Free tier: 10 requests per minute for list endpoints.
+ * Fetch one team's players and map to ApiPlayerResponse[] (shared logic for La Liga 2).
  */
-export async function getLaLiga2PlayersWithPhotos(): Promise<PlayersSearchResponse> {
+async function fetchTeamPlayers(teamId: number, teamName: string): Promise<ApiPlayerResponse[]> {
   const base = API_BASE.replace(/\/$/, '')
-  const url = `${base}/${API_KEY}/lookup_all_players.php?id=${THESPORTSDB_ZARAGOZA_TEAM_ID}`
+  const url = `${base}/${API_KEY}/lookup_all_players.php?id=${teamId}`
   const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error(`TheSportsDB error: ${res.status}`)
-  }
+  if (!res.ok) return []
   const text = await res.text()
-  if (!text.trim()) {
-    throw new Error('TheSportsDB returned an empty response.')
-  }
+  if (!text.trim()) return []
   let data: TheSportsDBPlayersResponse
   try {
     data = JSON.parse(text) as TheSportsDBPlayersResponse
   } catch {
-    throw new Error('Invalid response from TheSportsDB.')
+    return []
   }
   const list = data.player ?? []
-  const teamName = list[0]?.strTeam ?? 'Real Zaragoza'
-  const teamId = toNum(list[0]?.idTeam)
-  // Exclude manager/coach
+  const nameFromApi = list[0]?.strTeam ?? teamName
+  const teamIdFromApi = toNum(list[0]?.idTeam) || teamId
   const playersOnly = list.filter(
-    (p) => p.strPosition && p.strPosition.toLowerCase() !== 'manager'
+    (p) =>
+      p.strPosition &&
+      p.strPosition.toLowerCase() !== 'manager' &&
+      (p.strThumb ?? '').trim() !== ''
   )
-  const response: ApiPlayerResponse[] = playersOnly.map((p) => {
+  return playersOnly.map((p) => {
     const name = p.strPlayer ?? '—'
     const last = p.strLastName ?? ''
     const first = last ? name.replace(new RegExp(`\\s*${last}$`), '').trim() : name.split(' ')[0] ?? name
@@ -328,7 +364,7 @@ export async function getLaLiga2PlayersWithPhotos(): Promise<PlayersSearchRespon
       },
       statistics: [
         {
-          team: { id: teamId, name: teamName, logo: '' },
+          team: { id: teamIdFromApi, name: nameFromApi, logo: '' },
           games: {
             position: p.strPosition ?? '',
             rating: null,
@@ -343,13 +379,52 @@ export async function getLaLiga2PlayersWithPhotos(): Promise<PlayersSearchRespon
       ],
     }
   })
+}
+
+/**
+ * Get La Liga 2 players from multiple teams (for home "Jugadores Destacados").
+ * Uses standings to get team list, then fetches players from several teams. Max 8 teams to respect rate limits.
+ */
+export async function getLaLiga2PlayersFromMultipleTeams(): Promise<PlayersSearchResponse> {
+  const { standings } = await getLaLigaStandings(THESPORTSDB_LALIGA2_LEAGUE_ID)
+  const teamsToFetch = standings.slice(0, 8)
+  const allPlayers: ApiPlayerResponse[] = []
+  const seenIds = new Set<number>()
+  for (const row of teamsToFetch) {
+    const teamId = row.team.id
+    const teamName = row.team.name
+    if (!teamId) continue
+    const teamPlayers = await fetchTeamPlayers(teamId, teamName)
+    for (const item of teamPlayers) {
+      if (!seenIds.has(item.player.id)) {
+        seenIds.add(item.player.id)
+        allPlayers.push(item)
+      }
+    }
+  }
   return {
     get: 'players',
     parameters: { search: '' },
     errors: {},
-    results: response.length,
-    paging: { current: 1, total: 1 },
-    response,
+    results: allPlayers.length,
+    paging: { current: 1, total: allPlayers.length },
+    response: allPlayers,
+  }
+}
+
+/**
+ * Get Real Zaragoza squad with player photos from TheSportsDB (for home page initial list - La Liga 2).
+ * Free tier: 10 requests per minute for list endpoints.
+ */
+export async function getLaLiga2PlayersWithPhotos(): Promise<PlayersSearchResponse> {
+  const teamPlayers = await fetchTeamPlayers(toNum(THESPORTSDB_ZARAGOZA_TEAM_ID), 'Real Zaragoza')
+  return {
+    get: 'players',
+    parameters: { search: '' },
+    errors: {},
+    results: teamPlayers.length,
+    paging: { current: 1, total: teamPlayers.length },
+    response: teamPlayers,
   }
 }
 

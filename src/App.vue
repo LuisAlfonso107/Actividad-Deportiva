@@ -1,11 +1,40 @@
 <script setup lang="ts">
+import { Suspense } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
+import { onMounted, ref, watch } from 'vue'
 import AppFooter from './components/AppFooter.vue'
 import { useApiErrorStore } from './stores/apiError'
+import { useAuthStore } from './stores/auth'
+import { useFavoritesStore } from './stores/favorites'
+import { useRegisterAlert } from './composable/useRegisterAlert'
 
 const apiError = useApiErrorStore()
-const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
+const authStore = useAuthStore()
+const favoritesStore = useFavoritesStore()
+
+onMounted(() => {
+  favoritesStore.fetchFavorites()
+})
+const { user, isAuthenticated } = storeToRefs(authStore)
+const { message: apiErrorMessage } = storeToRefs(apiError)
+
+const {
+  showRegisterAlert,
+  closeAlert,
+  goToRegister,
+  goToLogin,
+} = useRegisterAlert()
+
+const profileText = ref('Mi Perfil')
+
+watch([isAuthenticated, user], () => {
+  if (isAuthenticated.value && user.value?.name) {
+    profileText.value = `HOLA, ${user.value.name}`
+  } else {
+    profileText.value = 'Iniciar sesión'
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -28,7 +57,7 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
           </RouterLink>
           <RouterLink to="/profile" class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 pr-3 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
             <span class="material-symbols-rounded text-3xl text-secondary dark:text-white">account_circle</span>
-            <span class="text-sm font-semibold hidden md:block">Mi Perfil</span>
+            <span class="text-sm font-semibold hidden md:block">{{ profileText }}</span>
           </RouterLink>
         </div>
       </div>
@@ -88,8 +117,36 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
     </nav>
   </header>
 
+  <div v-if="showRegisterAlert" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60" @click.self="closeAlert">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-8 max-w-md mx-4 text-center transform animate-fade-in">
+      <div class="mb-4">
+        <span class="material-symbols-rounded text-5xl text-primary">sports_soccer</span>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">¡Únete a KABOOMFOT!</h2>
+      <p class="text-slate-600 dark:text-slate-300 mb-6">Regístrate o inicia sesión para acceder a todas las funcionalidades exclusivas</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button @click="goToRegister" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+          Registrarse
+        </button>
+        <button @click="goToLogin" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+          Iniciar Sesión
+        </button>
+      </div>
+      <button @click="closeAlert" class="mt-4 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 text-sm">
+        Cerrar
+      </button>
+    </div>
+  </div>
+
   <main class="min-h-screen bg-background-light dark:bg-background-dark">
-    <RouterView />
+    <Suspense>
+      <template #default>
+        <RouterView />
+      </template>
+      <template #fallback>
+        <div class="suspense-loading">Cargando vista…</div>
+      </template>
+    </Suspense>
   </main>
   <AppFooter />
 </template>
@@ -98,5 +155,30 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
 .router-link-active {
   color: #10b981 !important;
   border-bottom: 2px solid #10b981 !important;
+}
+
+.suspense-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  font-weight: 600;
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
 }
 </style>

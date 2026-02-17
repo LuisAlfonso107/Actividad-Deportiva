@@ -2,8 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ApiPlayerResponse } from '../services/footballApi'
-import { getInitialPlayers, searchPlayers } from '../services/footballApi'
-import { getLaLiga2PlayersWithPhotos, searchPlayersTheSportsDB } from '../services/thesportsdb'
+import { getLaLiga2PlayersFromMultipleTeams, searchPlayersLaLiga2 } from '../services/thesportsdb'
 import { useApiErrorStore } from '../stores/apiError'
 import { useFavoritesStore } from '../stores/favorites'
 
@@ -23,18 +22,13 @@ const hasFavorites = computed(() => favorites.value.length > 0)
 
 onMounted(async () => {
   try {
-    let res
-    try {
-      res = await getLaLiga2PlayersWithPhotos()
-    } catch {
-      res = await getInitialPlayers()
-    }
+    const res = await getLaLiga2PlayersFromMultipleTeams()
     searchResults.value = res.response ?? []
     if (searchResults.value.length === 0 && !searchQuery.value.trim()) {
-      searchError.value = 'Add VITE_FOOTBALL_API_KEY to .env and restart the dev server.'
+      searchError.value = 'No hay jugadores de La Liga 2 disponibles. Comprueba VITE_THESPORTSDB_API_KEY en .env.'
     }
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Failed to load players'
+    const msg = e instanceof Error ? e.message : 'No se pudieron cargar los jugadores de La Liga 2.'
     searchError.value = msg
     apiErrorStore.setError(msg)
   } finally {
@@ -55,16 +49,11 @@ async function runSearch() {
   searchResults.value = []
   showResultsList.value = true
   try {
-    const [resFootball, resTheSportsDB] = await Promise.all([
-      searchPlayers(q).catch(() => ({ response: [] as ApiPlayerResponse[], results: 0 })),
-      searchPlayersTheSportsDB(q).catch(() => ({ response: [] as ApiPlayerResponse[], results: 0 })),
-    ])
-    const fromFootball = resFootball.response ?? []
-    const fromTheSportsDB = resTheSportsDB.response ?? []
-    const merged = [...fromFootball, ...fromTheSportsDB]
-    searchResults.value = merged
-    if (merged.length === 0) {
-      searchError.value = 'No players found'
+    const res = await searchPlayersLaLiga2(q).catch(() => ({ response: [] as ApiPlayerResponse[], results: 0 }))
+    const list = res.response ?? []
+    searchResults.value = list
+    if (list.length === 0) {
+      searchError.value = 'No se encontraron jugadores en La Liga 2'
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Search failed'
@@ -144,12 +133,16 @@ function getPlayerTeam(item: ApiPlayerResponse): string {
 }
 
 function getPlayerStats(item: ApiPlayerResponse) {
-  // Mock stats for display - in real app these would come from API
+  const stats = item.statistics?.[0]
+  const goalsTotal = stats?.goals?.total
+  const assistsVal = stats?.goals?.assists
+  // Use real stats when available; otherwise stable values from player id so they don't change on re-render (e.g. when clicking favorite)
+  const id = item.player.id
   return {
-    goals: Math.floor(Math.random() * 20),
-    assists: Math.floor(Math.random() * 15),
-    physical: Math.floor(Math.random() * 30) + 70,
-    pace: Math.floor(Math.random() * 30) + 70
+    goals: typeof goalsTotal === 'number' ? goalsTotal : (id % 21),
+    assists: assistsVal != null ? assistsVal : (id % 16),
+    physical: (id % 30) + 70,
+    pace: ((id >> 4) % 30) + 70
   }
 }
 </script>
@@ -203,7 +196,7 @@ function getPlayerStats(item: ApiPlayerResponse) {
             {{ searchQuery ? 'Resultados de Búsqueda' : 'Jugadores Destacados' }}
           </h2>
           <p class="text-slate-500 dark:text-slate-400">
-            {{ searchQuery ? `Resultados para "${searchQuery}"` : 'Las promesas que están dando que hablar esta temporada.' }}
+            {{ searchQuery ? `Resultados para "${searchQuery}"` : 'Jugadores de La Liga 2 que están dando que hablar esta temporada.' }}
           </p>
         </div>
         <a v-if="!searchQuery" class="text-primary font-bold flex items-center gap-1 hover:underline" href="/laliga2">
