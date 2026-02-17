@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Suspense } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
@@ -178,7 +179,14 @@ watch(isAuthenticated, (newValue) => {
   </div>
 
   <main class="min-h-screen bg-background-light dark:bg-background-dark">
-    <RouterView />
+    <Suspense>
+      <template #default>
+        <RouterView />
+      </template>
+      <template #fallback>
+        <div class="suspense-loading">Cargando vista…</div>
+      </template>
+    </Suspense>
   </main>
   <AppFooter />
 </template>
@@ -189,18 +197,13 @@ watch(isAuthenticated, (newValue) => {
   border-bottom: 2px solid #10b981 !important;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.2s ease-out;
+.suspense-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  font-weight: 600;
+  color: var(--color-text);
+  opacity: 0.7;
 }
 </style>
