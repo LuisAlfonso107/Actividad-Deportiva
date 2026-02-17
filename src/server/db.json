@@ -3,7 +3,9 @@
     {
       "id": "2308",
       "email": "hola@gmail.com",
-      "password": "Hola123"
+      "password": "Hola123",
+      "name": "Yeremi",
+      "phone": "988546"
     }
   ]
 }

@@ -1,11 +1,79 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import AppFooter from './components/AppFooter.vue'
 import { useApiErrorStore } from './stores/apiError'
+import { useAuthStore } from './stores/auth'
 
 const apiError = useApiErrorStore()
+const authStore = useAuthStore()
+const { user, isAuthenticated } = storeToRefs(authStore)
+const router = useRouter()
+
 const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
+
+const showRegisterAlert = ref(false)
+let alertInterval: ReturnType<typeof setInterval> | null = null
+
+function startAlertTimer() {
+  if (alertInterval) return
+  alertInterval = setInterval(() => {
+    if (!isAuthenticated.value) {
+      showRegisterAlert.value = true
+    }
+  }, 10000)
+}
+
+function stopAlertTimer() {
+  if (alertInterval) {
+    clearInterval(alertInterval)
+    alertInterval = null
+  }
+}
+
+function closeAlert() {
+  showRegisterAlert.value = false
+}
+
+function goToRegister() {
+  closeAlert()
+  router.push('/register')
+}
+
+function goToLogin() {
+  closeAlert()
+  router.push('/login')
+}
+
+const profileText = ref('Mi Perfil')
+
+watch([isAuthenticated, user], () => {
+  if (isAuthenticated.value && user.value?.name) {
+    profileText.value = `HOLA, ${user.value.name}`
+  } else {
+    profileText.value = 'Iniciar sesión'
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  if (!isAuthenticated.value) {
+    startAlertTimer()
+  }
+})
+
+onUnmounted(() => {
+  stopAlertTimer()
+})
+
+watch(isAuthenticated, (newValue) => {
+  if (newValue) {
+    stopAlertTimer()
+    showRegisterAlert.value = false
+  } else {
+    startAlertTimer()
+  }
+})
 </script>
 
 <template>
@@ -28,7 +96,7 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
           </RouterLink>
           <RouterLink to="/profile" class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 pr-3 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
             <span class="material-symbols-rounded text-3xl text-secondary dark:text-white">account_circle</span>
-            <span class="text-sm font-semibold hidden md:block">Mi Perfil</span>
+            <span class="text-sm font-semibold hidden md:block">{{ profileText }}</span>
           </RouterLink>
         </div>
       </div>
@@ -88,6 +156,27 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
     </nav>
   </header>
 
+  <div v-if="showRegisterAlert" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60" @click.self="closeAlert">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-8 max-w-md mx-4 text-center transform animate-fade-in">
+      <div class="mb-4">
+        <span class="material-symbols-rounded text-5xl text-primary">sports_soccer</span>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">¡Únete a KABOOMFOT!</h2>
+      <p class="text-slate-600 dark:text-slate-300 mb-6">Regístrate o inicia sesión para acceder a todas las funcionalidades exclusivas</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button @click="goToRegister" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+          Registrarse
+        </button>
+        <button @click="goToLogin" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+          Iniciar Sesión
+        </button>
+      </div>
+      <button @click="closeAlert" class="mt-4 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 text-sm">
+        Cerrar
+      </button>
+    </div>
+  </div>
+
   <main class="min-h-screen bg-background-light dark:bg-background-dark">
     <RouterView />
   </main>
@@ -98,5 +187,20 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
 .router-link-active {
   color: #10b981 !important;
   border-bottom: 2px solid #10b981 !important;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
 }
 </style>
