@@ -6,7 +6,6 @@ Backlog | To Do (Sprint actual) | In Progress | Code Review | Testing | Done
 
 ## Backlog
 
-- [ ] [OPCIONAL] Propuesta de valor + buyer persona (si el equipo ya lo tiene, bajar a tareas concretas).
 
 ## To Do (Sprint actual — 2 semanas, primer sprint enfocado en MVP)
 
@@ -15,9 +14,6 @@ Backlog | To Do (Sprint actual) | In Progress | Code Review | Testing | Done
 
 ## In Progress
 
-- [ ] [OBLIGATORIO] Implementacion de composable(s) para gestion de llamadas asincronas (ej.: useApi).
-- [ ] [OBLIGATORIO] Implementacion de reactividad (ref/reactive) y uso minimo de lifecycle hooks y Suspense.
-- [ ] [OBLIGATORIO] Configurar y arrancar Json-Server para simular backend local (endpoints GET/POST/PUT/DELETE).
 
 ## Code Review
 
@@ -30,6 +26,9 @@ Backlog | To Do (Sprint actual) | In Progress | Code Review | Testing | Done
 
 ## Done
 
+- [x] [OPCIONAL] Propuesta de valor + buyer persona (si el equipo ya lo tiene, bajar a tareas concretas).
+- [x] [OBLIGATORIO] Implementacion de composable(s) para gestion de llamadas asincronas (ej.: useApi).
+- [x] [OBLIGATORIO] Implementacion de reactividad (ref/reactive) y uso minimo de lifecycle hooks y Suspense.
 - [x] [OBLIGATORIO] Configurar Git y ramas minimas: main, develop, feature/*.
 - [x] [OBLIGATORIO] Planificacion sprint y asignacion de roles (Scrum Master, Product Owner).
 - [x] [OBLIGATORIO] Revision de ramas y flujo Git (merge policy).
@@ -42,13 +41,14 @@ Backlog | To Do (Sprint actual) | In Progress | Code Review | Testing | Done
 - [x] [OBLIGATORIO] Repositorio en GitHub con ramas y codigo entregado.
 - [x] [OBLIGATORIO] Build de produccion generado (archivo listo).
 - [x] [OBLIGATORIO] Entregables: codigo fuente, prototipos exportados (PDF), presentacion de sprint review.
+- [x] [OBLIGATORIO] Configurar y arrancar Json-Server para simular backend local (endpoints GET/POST/PUT/DELETE).
+- [x] [OPCIONAL] Integrar varias APIs para enriquecer la info al usuario.
+- [x] [OPCIONAL] Uso de Pinia o TypeScript (mejoras recomendadas por el enunciado).
+- [x] [OPCIONAL] Documentar y evidenciar uso de agente de IA (si se emplea, el documento pide que se documente su uso).
 
 ## Mejoras / Opcionales
 
 - [ ] [OPCIONAL] Deploy en Netlify u otro host gratuito (mejora recomendada).
-- [ ] [OPCIONAL] Uso de Pinia o TypeScript (mejoras recomendadas por el enunciado).
-- [ ] [OPCIONAL] Integrar varias APIs para enriquecer la info al usuario.
-- [ ] [OPCIONAL] Documentar y evidenciar uso de agente de IA (si se emplea, el documento pide que se documente su uso).
 
 ## Notas importantes (verificables en el documento)
 

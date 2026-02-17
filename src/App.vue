@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Suspense } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
 import AppFooter from './components/AppFooter.vue'
@@ -89,7 +90,14 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
   </header>
 
   <main class="min-h-screen bg-background-light dark:bg-background-dark">
-    <RouterView />
+    <Suspense>
+      <template #default>
+        <RouterView />
+      </template>
+      <template #fallback>
+        <div class="suspense-loading">Cargando vista…</div>
+      </template>
+    </Suspense>
   </main>
   <AppFooter />
 </template>
@@ -98,5 +106,15 @@ const { message: apiErrorMessage, isLimitError } = storeToRefs(apiError)
 .router-link-active {
   color: #10b981 !important;
   border-bottom: 2px solid #10b981 !important;
+}
+
+.suspense-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  font-weight: 600;
+  color: var(--color-text);
+  opacity: 0.7;
 }
 </style>
