@@ -5,32 +5,41 @@ export interface NewsArticle {
   description: string
   image: string
   date: string
+  source?: string
 }
 
-// Función para obtener noticias de LaLiga 2
-export async function getLaLiga2News(): Promise<NewsArticle[]> {
-  const token = import.meta.env.VITE_FOOTBALL_API_KEY as string
-  if (!token) throw new Error("VITE_FOOTBALL_API_KEY no está definido")
+const API_KEY = 'pub_443a91a06f0643feac8b67423cd94272'
+const BASE_URL = 'https://newsdata.io/api/1/news'
 
+export async function getLaLiga2News(): Promise<NewsArticle[]> {
   try {
-    // Fetch de equipos de LaLiga 2 (Segunda División)
-    const res = await fetch("https://api.football-data.org/v4/competitions/PD/teams", {
-      headers: new Headers({
-        "X-Auth-Token": token
-      })
+    const params = new URLSearchParams({
+      apikey: API_KEY,
+      q: 'LaLiga 2 fútbol España',
+      language: 'es',
+      category: 'sports'
     })
 
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+    const res = await fetch(`${BASE_URL}?${params}`)
+
+    if (!res.ok) {
+      console.error('NewsData API error (LaLiga2):', res.status)
+      return []
+    }
 
     const data = await res.json()
 
-    // Transformamos los equipos en "noticias" ficticias
-    const articles: NewsArticle[] = data.teams.map((team: any, index: number) => ({
-      id: team.id || String(index),
-      title: `Últimas noticias de ${team.name}`,
-      description: `Noticias y actualizaciones del equipo ${team.name} en LaLiga 2.`,
-      image: team.crest || "https://images.unsplash.com/photo-1508098682722-e99c643e7f0b",
-      date: new Date().toLocaleDateString()
+    if (!data.results || !Array.isArray(data.results)) {
+      return []
+    }
+
+    const articles: NewsArticle[] = data.results.map((item: any, index: number) => ({
+      id: item.article_id || String(index),
+      title: item.title || 'Sin título',
+      description: item.description || '',
+      image: item.image_url || 'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b',
+      date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('es-ES') : new Date().toLocaleDateString('es-ES'),
+      source: item.source_id || 'News'
     }))
 
     return articles
