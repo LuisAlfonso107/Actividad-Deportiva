@@ -1,9 +1,15 @@
 /**
- * football-data.org API v4 – standings, teams, squad (players)
- * Docs: https://www.football-data.org/documentation/quickstart
- * API Reference: https://docs.football-data.org/general/v4/
- * Base: https://api.football-data.org/v4
+ * football-data.org API v4 – players only (search, squad, get by id).
+ *
+ * Used by: PlayerAnalysisView (get player by id, search).
+ * Standings → standingsApi.ts  |  Transfers → transfersApi.ts  |  Players (TheSportsDB) → playersApi.ts
  */
+
+import type { ApiPlayer, ApiPlayerResponse, PlayersSearchResponse } from './types'
+
+export type { ApiPlayer, ApiPlayerTeam, ApiPlayerResponse, PlayersSearchResponse } from './types'
+
+// ─── Config ─────────────────────────────────────────────────────────────────
 
 const API_BASE = import.meta.env.DEV
   ? `${typeof location !== 'undefined' ? location.origin : ''}/api/footballdata/v4`
@@ -24,7 +30,8 @@ function getNextToken(): string {
 
 const API_TOKEN = API_TOKENS[0] ?? ''
 
-/* ---------- football-data.org response types ---------- */
+// ─── football-data.org raw response types (internal) ─────────────────────────
+
 interface FDTeam {
   id: number
   name: string
@@ -58,63 +65,7 @@ interface FDStandingsTableRow {
   goalDifference: number
 }
 
-/* ---------- App-facing types (unchanged for views) ---------- */
-export interface ApiPlayer {
-  id: number
-  name: string
-  firstname: string
-  lastname: string
-  common_name?: string
-  display_name?: string
-  age: number | null
-  birth: { date: string; place: string | null; country: string }
-  nationality: string
-  height: string | null
-  weight: string | null
-  photo: string
-  gender?: string
-}
-
-export interface ApiPlayerTeam {
-  id: number
-  name: string
-  logo: string
-}
-
-export interface ApiPlayerResponse {
-  player: ApiPlayer
-  statistics?: Array<{
-    team: ApiPlayerTeam
-    games: {
-      position: string
-      rating: string | null
-      captain: boolean
-      minutes: number
-      appearences: number
-      lineups: number
-      substitute_in: number
-      substitute_out: number
-    }
-    goals?: { total: number; assists: number | null }
-    shots?: { total: number; on: number | null }
-    passes?: { total: number; accuracy: number | null }
-    tackles?: { total: number }
-    duels?: { total: number; won: number | null }
-    dribbles?: { attempts: number; success: number | null }
-    fouls?: { drawn: number; committed: number | null }
-    cards?: { yellow: number; red: number }
-    penalty?: { scored: number; missed: number }
-  }>
-}
-
-export interface PlayersSearchResponse {
-  get: string
-  parameters: { search: string }
-  errors: Record<string, unknown>
-  results: number
-  paging: { current: number; total: number }
-  response: ApiPlayerResponse[]
-}
+// ─── Helpers (map API response → our types) ─────────────────────────────────
 
 function squadPersonToPlayer(p: FDSquadPerson, team: FDTeam): ApiPlayer {
   const first = p.firstName ?? ''
@@ -154,6 +105,7 @@ function squadToPlayerResponses(squad: FDSquadPerson[], team: FDTeam): ApiPlayer
   }))
 }
 
+/** HTTP request to football-data.org with auth and error handling. */
 async function request<T>(path: string, params: Record<string, string | number> = {}, tryCount = 0): Promise<T> {
   const token = getNextToken()
   if (!token) {
@@ -194,8 +146,15 @@ async function request<T>(path: string, params: Record<string, string | number> 
   return res.json() as Promise<T>
 }
 
+// ─── Public API ──────────────────────────────────────────────────────────────
+
+/** La Liga 2 in football-data.org (used e.g. in PlayerAnalysisView). */
+export const LALIGA2_LEAGUE_ID = 141
+export const LALIGA2_COMPETITION_CODE = 'SD'
+
 /**
- * football-data.org does not offer player search by name; returns empty results.
+ * Player search by name. football-data.org does not support this; returns empty.
+ * Kept for API compatibility; app uses playersApi.searchPlayersLaLiga2 for real search.
  */
 export async function searchPlayers(
   search: string,
@@ -225,9 +184,9 @@ export async function searchPlayers(
   }
 }
 
-/** Barcelona in football-data.org */
-const DEFAULT_TEAM_ID = 81
+const DEFAULT_TEAM_ID = 81 // Barcelona in football-data.org
 
+/** Initial player list from football-data.org (one team squad). Rarely used; app prefers playersApi. */
 export async function getInitialPlayers(): Promise<PlayersSearchResponse> {
   if (!API_TOKEN) {
     return {
@@ -269,130 +228,9 @@ export async function getInitialPlayers(): Promise<PlayersSearchResponse> {
   }
 }
 
-/* ---------- Standings ---------- */
-export interface StandingRow {
-  rank: number
-  team: { id: number; name: string; logo: string }
-  points: number
-  goalsDiff: number
-  form: string
-  played: number
-  win: number
-  draw: number
-  lose: number
-  goalsFor: number
-  goalsAgainst: number
-}
-
-export interface StandingsResponse {
-  leagueName: string
-  leagueLogo?: string
-  season: number
-  standings: StandingRow[]
-}
-
-/** La Liga 2 = Segunda División, code "SD" in football-data.org */
-export const LALIGA2_LEAGUE_ID = 141
-export const LALIGA2_COMPETITION_CODE = 'SD'
-
-/* ---------- Transfers (not provided by football-data.org) ---------- */
-export interface TransferItem {
-  player: { id: number; name: string; photo?: string }
-  fromTeam: { id: number; name: string; logo: string }
-  toTeam: { id: number; name: string; logo: string }
-  type: string
-  date: string
-  fee?: string
-}
-
-export interface TeamTransfersResponse {
-  teamId: number
-  teamName: string
-  teamLogo: string
-  transfersIn: TransferItem[]
-  transfersOut: TransferItem[]
-}
-
-export async function getTeamTransfers(_teamId: number): Promise<TeamTransfersResponse> {
-  if (!API_TOKEN) {
-    throw new Error('Add VITE_FOOTBALL_API_KEY to .env and restart dev server.')
-  }
-  return {
-    teamId: _teamId,
-    teamName: '',
-    teamLogo: '',
-    transfersIn: [],
-    transfersOut: [],
-  }
-}
-
-function mapStandingsResponse(res: {
-  competition?: { id: number; name: string; emblem?: string }
-  season?: { id?: number; startDate?: string }
-  standings?: Array<{ type: string; table?: FDStandingsTableRow[] }>
-}, seasonFallback: number): StandingsResponse {
-  const totalTable = res.standings?.find((s) => s.type === 'TOTAL')?.table ?? []
-  const seasonYear = res.season?.startDate ? new Date(res.season.startDate).getFullYear() : seasonFallback
-  const standings: StandingRow[] = totalTable.map((row) => ({
-    rank: row.position,
-    team: {
-      id: row.team.id,
-      name: row.team.name,
-      logo: row.team.crest ?? '',
-    },
-    points: row.points,
-    goalsDiff: row.goalDifference,
-    form: row.form ?? '',
-    played: row.playedGames,
-    win: row.won,
-    draw: row.draw,
-    lose: row.lost,
-    goalsFor: row.goalsFor,
-    goalsAgainst: row.goalsAgainst,
-  }))
-  return {
-    leagueName: res.competition?.name ?? 'Segunda División',
-    leagueLogo: res.competition?.emblem,
-    season: seasonYear,
-    standings,
-  }
-}
-
-interface StandingsApiResponse {
-  competition?: { id: number; name: string; emblem?: string }
-  season?: { id?: number; startDate?: string }
-  standings?: Array<{ type: string; table?: FDStandingsTableRow[] }>
-}
-
-export async function getStandings(
-  _leagueId: number = LALIGA2_LEAGUE_ID,
-  season: number = new Date().getFullYear()
-): Promise<StandingsResponse> {
-  if (!API_TOKEN) {
-    throw new Error('Add VITE_FOOTBALL_API_KEY to .env and restart dev server.')
-  }
-  const seasonStr = season.toString()
-  try {
-    const res = await request<StandingsApiResponse>(`/competitions/${LALIGA2_COMPETITION_CODE}/standings`, { season: seasonStr })
-    return mapStandingsResponse(res, season)
-  } catch (err) {
-    const is403 = err instanceof Error && (err.message.includes('403') || err.message.includes('forbidden'))
-    if (is403) {
-      try {
-        const res = await request<StandingsApiResponse>('/competitions/PD/standings', { season: seasonStr })
-        return mapStandingsResponse(res, season)
-      } catch {
-        throw new Error(
-          'API access forbidden (403). Check your token at https://www.football-data.org/client/register and that your plan includes league standings.'
-        )
-      }
-    }
-    throw err
-  }
-}
-
 /**
- * Get player by ID. football-data.org exposes persons; we try /persons/{id} and fallback to finding in a known team squad.
+ * Get one player by ID from football-data.org. Used in PlayerAnalysisView.
+ * Uses /persons/{id}; current team and position included when available.
  */
 export async function getPlayer(id: number, _season: number = 2024): Promise<PlayersSearchResponse> {
   if (!API_TOKEN) {

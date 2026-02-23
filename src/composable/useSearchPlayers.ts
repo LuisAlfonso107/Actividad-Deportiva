@@ -1,7 +1,6 @@
 import { computed, ref, watch, onMounted } from 'vue'
-import { getLaLiga2PlayersFromMultipleTeams, searchPlayersLaLiga2 } from '../services/thesportsdb'
+import { getLaLiga2PlayersFromMultipleTeams, searchPlayersLaLiga2, type ApiPlayerResponse } from '../services/playersApi'
 import { useApiErrorStore } from '../stores/apiError'
-import type { ApiPlayerResponse } from '../services/footballApi'
 
 const DEBOUNCE_MS = 400
 

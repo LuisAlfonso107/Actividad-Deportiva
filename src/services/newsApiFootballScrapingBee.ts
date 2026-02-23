@@ -1,7 +1,12 @@
 /**
- * Football news via ScrapingBee API (with direct RSS fallback)
+ * News API – football headlines for the News page.
+ *
+ * Tries: (1) direct RSS fetch (Marca, AS, etc.), (2) ScrapingBee if API key set.
+ * If all fail, returns a small fallback list so the page still works.
  * Docs: https://www.scrapingbee.com/documentation/
  */
+
+// ─── Config ─────────────────────────────────────────────────────────────────
 
 const SCRAPINGBEE_BASE = "https://app.scrapingbee.com/api/v1"
 
@@ -10,6 +15,8 @@ const RSS_FEEDS = [
   "https://www.marca.com/rss/futbol.xml",
   "https://as.com/rss/tags/futbol.xml",
 ]
+
+// ─── Fallback (when RSS/ScrapingBee fail) ───────────────────────────────────
 
 const FALLBACK_NEWS: FootballNewsArticle[] = [
   {
@@ -46,6 +53,8 @@ const FALLBACK_NEWS: FootballNewsArticle[] = [
   },
 ]
 
+// ─── Types ──────────────────────────────────────────────────────────────────
+
 export interface FootballNewsArticle {
   id: string
   title: string
@@ -55,6 +64,8 @@ export interface FootballNewsArticle {
   source?: string
   url?: string
 }
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function getApiKey(): string {
   return import.meta.env.VITE_SCRAPINGBEE_API_KEY || ""
@@ -180,6 +191,9 @@ async function fetchRssViaScrapingBee(url: string): Promise<string | null> {
   }
 }
 
+// ─── Public API ──────────────────────────────────────────────────────────────
+
+/** Fetch football news from RSS feeds; fallback list if none work. */
 export async function getFootballNews(): Promise<FootballNewsArticle[]> {
   for (const feedUrl of RSS_FEEDS) {
     let text: string | null = null
