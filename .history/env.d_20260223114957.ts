@@ -3,13 +3,10 @@
 
 interface ImportMetaEnv {
   readonly VITE_FOOTBALL_API_KEY?: string
-  readonly VITE_FOOTBALL_API_KEY_2?: string
-  readonly VITE_FOOTBALL_DATA_TOKEN?: string
   readonly VITE_APIFOOTBALL_KEY?: string
   readonly VITE_SPORTMONKS_API_TOKEN?: string
   readonly VITE_SCRAPINGBEE_API_KEY?: string
   readonly VITE_NEWSDATA_API_KEY?: string
-  readonly VITE_THESPORTSDB_API_KEY?: string
 }
 
 interface ImportMeta {
