@@ -3,8 +3,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { RouterLink } from 'vue-router'
 import { useApiErrorStore } from '../stores/apiError'
-import { getTeamTransfers, type TransferItem } from '../services/footballApi'
-import { getTeamTransfersFromTheSportsDB } from '../services/thesportsdb'
+import { getTeamTransfers, getTeamTransfersFromTheSportsDB, type TransferItem } from '../services/transfersApi'
 
 const route = useRoute()
 const router = useRouter()

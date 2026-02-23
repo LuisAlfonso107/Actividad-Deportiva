@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import type { ApiPlayerResponse } from '../services/footballApi'
-import { getLaLiga2PlayersFromMultipleTeams, searchPlayersLaLiga2 } from '../services/thesportsdb'
+import type { ApiPlayerResponse } from '../services/playersApi'
+import { getLaLiga2PlayersFromMultipleTeams, searchPlayersLaLiga2 } from '../services/playersApi'
 import { useApiErrorStore } from '../stores/apiError'
 import { useFavoritesStore } from '../stores/favorites'
 

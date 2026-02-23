@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearchPlayers } from '../composable/useSearchPlayers'
 import { useFavoritesStore } from '../stores/favorites'
-import type { ApiPlayerResponse } from '../services/footballApi'
+import type { ApiPlayerResponse } from '../services/playersApi'
 
 const router = useRouter()
 const favoritesStore = useFavoritesStore()

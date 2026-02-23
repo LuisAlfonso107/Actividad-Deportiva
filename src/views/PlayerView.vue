@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getPlayerFromTheSportsDB } from '../services/thesportsdb'
-import type { ApiPlayerResponse } from '../services/footballApi'
+import { getPlayerFromTheSportsDB, type ApiPlayerResponse } from '../services/playersApi'
 
 const route = useRoute()
 const router = useRouter()

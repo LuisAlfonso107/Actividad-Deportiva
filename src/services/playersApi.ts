@@ -1,32 +1,26 @@
 /**
- * TheSportsDB API v1 – used for La Liga standings (league table) and player photos
- * Docs: https://www.thesportsdb.com/documentation#free_vs_premium
- * Free key: 123 | Premium: from user profile
+ * Players API – search, squad lists, and single-player profile.
+ *
+ * Source: TheSportsDB (free tier: 2 req/min search, 10 req/min squad).
+ * Use this for: Home/Players list, search, and player profile page.
  */
 
-import type {
-  ApiPlayerResponse,
-  PlayersSearchResponse,
-  StandingRow,
-  StandingsResponse,
-  TeamTransfersResponse,
-  TransferItem,
-} from './footballApi'
+import { getLaLigaStandings, THESPORTSDB_LALIGA2_LEAGUE_ID } from './standingsApi'
+import type { ApiPlayerResponse, PlayersSearchResponse } from './types'
+
+export type { ApiPlayerResponse, PlayersSearchResponse }
+
+// ─── Config ─────────────────────────────────────────────────────────────────
 
 const API_BASE = import.meta.env.DEV
   ? `${typeof location !== 'undefined' ? location.origin : ''}/api/thesportsdb`
   : 'https://www.thesportsdb.com/api/v1/json'
 const API_KEY = (import.meta.env.VITE_THESPORTSDB_API_KEY ?? '123').trim()
 
-/** Spanish La Liga (Primera División) – TheSportsDB league ID */
-export const THESPORTSDB_LALIGA_LEAGUE_ID = '4335'
-/** La Liga 2 / Segunda División – TheSportsDB league ID */
-export const THESPORTSDB_LALIGA2_LEAGUE_ID = '4400'
+const THESPORTSDB_BARCELONA_TEAM_ID = '133739'
+const THESPORTSDB_ZARAGOZA_TEAM_ID = '134777'
 
-/** Barcelona – TheSportsDB team ID (for player list with photos) */
-export const THESPORTSDB_BARCELONA_TEAM_ID = '133739'
-/** Real Zaragoza – TheSportsDB team ID (example La Liga 2 team for player list) */
-export const THESPORTSDB_ZARAGOZA_TEAM_ID = '134777'
+// ─── TheSportsDB raw response types (internal) ──────────────────────────────
 
 interface TheSportsDBPlayer {
   idPlayer?: string
@@ -46,29 +40,11 @@ interface TheSportsDBPlayersResponse {
   player?: TheSportsDBPlayer[]
 }
 
-interface TheSportsDBTableRow {
-  idStanding?: string
-  intRank?: string
-  idTeam?: string
-  strTeam?: string
-  strBadge?: string
-  idLeague?: string
-  strLeague?: string
-  strSeason?: string
-  strForm?: string
-  intPlayed?: string
-  intWin?: string
-  intDraw?: string
-  intLoss?: string
-  intGoalsFor?: string
-  intGoalsAgainst?: string
-  intGoalDifference?: string
-  intPoints?: string
+interface TheSportsDBLookupPlayerResponse {
+  players?: TheSportsDBPlayer[]
 }
 
-interface TheSportsDBTableResponse {
-  table?: TheSportsDBTableRow[]
-}
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function toNum(s: string | undefined): number {
   if (s === undefined || s === null || s === '') return 0
@@ -76,70 +52,25 @@ function toNum(s: string | undefined): number {
   return Number.isNaN(n) ? 0 : n
 }
 
-/** Build season string in TheSportsDB format, e.g. "2025-2026". Default: live season for 2026. */
-function getDefaultSeason(): string {
-  return '2025-2026'
-}
+// ─── Cache (La Liga 2 team IDs for search filter) ────────────────────────────
+
+let laliga2TeamIdsCache: Set<number> | null = null
 
 /**
- * Get La Liga (or other league) standings from TheSportsDB.
- * Free tier: 5 requests per minute for lookuptable (see docs).
+ * All TheSportsDB team IDs that are in La Liga 2. Cached per session.
+ * Used so we only show La Liga 2 players in search.
  */
-export async function getLaLigaStandings(
-  leagueId: string = THESPORTSDB_LALIGA2_LEAGUE_ID,
-  season: string = getDefaultSeason()
-): Promise<StandingsResponse> {
-  const base = API_BASE.replace(/\/$/, '')
-  const url = `${base}/${API_KEY}/lookuptable.php?l=${encodeURIComponent(leagueId)}&s=${encodeURIComponent(season)}`
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error(`TheSportsDB error: ${res.status}. Check https://www.thesportsdb.com/documentation#free_vs_premium`)
-  }
-  const text = await res.text()
-  if (!text.trim()) {
-    throw new Error('TheSportsDB returned an empty response. Try again or check the season.')
-  }
-  let data: TheSportsDBTableResponse
-  try {
-    data = JSON.parse(text) as TheSportsDBTableResponse
-  } catch {
-    throw new Error('Invalid response from TheSportsDB. Try again later.')
-  }
-  const table = data.table ?? []
-  const first = table[0]
-  const leagueName = first?.strLeague ?? 'Spanish La Liga'
-  const parts = first?.strSeason?.split('-') ?? []
-  const seasonYear = parts.length >= 2 ? toNum(parts[1]) : parts.length === 1 ? toNum(parts[0]) : new Date().getFullYear()
-
-  const standings: StandingRow[] = table.map((row, index) => ({
-    rank: toNum(row.intRank) || index + 1,
-    team: {
-      id: toNum(row.idTeam),
-      name: row.strTeam ?? '—',
-      logo: row.strBadge ?? '',
-    },
-    points: toNum(row.intPoints),
-    goalsDiff: toNum(row.intGoalDifference),
-    form: row.strForm ?? '',
-    played: toNum(row.intPlayed),
-    win: toNum(row.intWin),
-    draw: toNum(row.intDraw),
-    lose: toNum(row.intLoss),
-    goalsFor: toNum(row.intGoalsFor),
-    goalsAgainst: toNum(row.intGoalsAgainst),
-  }))
-
-  return {
-    leagueName,
-    leagueLogo: undefined,
-    season: seasonYear,
-    standings,
-  }
+export async function getLaLiga2TeamIds(): Promise<Set<number>> {
+  if (laliga2TeamIdsCache != null) return laliga2TeamIdsCache
+  const { standings } = await getLaLigaStandings(THESPORTSDB_LALIGA2_LEAGUE_ID)
+  laliga2TeamIdsCache = new Set(standings.map((row) => row.team.id).filter(Boolean))
+  return laliga2TeamIdsCache
 }
 
+// ─── Public API: Search ─────────────────────────────────────────────────────
+
 /**
- * Search players by name using TheSportsDB (searchplayers.php).
- * Free tier: 2 requests per minute. Returns players with photos.
+ * Search players by name (TheSportsDB). Returns all matches; use searchPlayersLaLiga2 for La Liga 2 only.
  */
 export async function searchPlayersTheSportsDB(q: string): Promise<PlayersSearchResponse> {
   const trimmed = q.trim()
@@ -209,23 +140,8 @@ export async function searchPlayersTheSportsDB(q: string): Promise<PlayersSearch
   }
 }
 
-/** Cached La Liga 2 team IDs (TheSportsDB) so search can filter by league. */
-let laliga2TeamIdsCache: Set<number> | null = null
-
 /**
- * Get the set of TheSportsDB team IDs that belong to La Liga 2 (from league table).
- * Result is cached for the session.
- */
-export async function getLaLiga2TeamIds(): Promise<Set<number>> {
-  if (laliga2TeamIdsCache != null) return laliga2TeamIdsCache
-  const { standings } = await getLaLigaStandings(THESPORTSDB_LALIGA2_LEAGUE_ID)
-  laliga2TeamIdsCache = new Set(standings.map((row) => row.team.id).filter(Boolean))
-  return laliga2TeamIdsCache
-}
-
-/**
- * Search players by name and return only those in La Liga 2 (Segunda División).
- * Uses TheSportsDB search then filters by La Liga 2 team IDs.
+ * Search by name and keep only La Liga 2 players with a photo. Use this on the Players page.
  */
 export async function searchPlayersLaLiga2(q: string): Promise<PlayersSearchResponse> {
   const [teamIds, res] = await Promise.all([
@@ -248,9 +164,10 @@ export async function searchPlayersLaLiga2(q: string): Promise<PlayersSearchResp
   }
 }
 
+// ─── Public API: Squad lists ─────────────────────────────────────────────────
+
 /**
- * Get Barcelona squad with player photos from TheSportsDB (for home page initial list).
- * Free tier: 10 requests per minute for list endpoints.
+ * Barcelona squad with photos (TheSportsDB).
  */
 export async function getBarcelonaPlayersWithPhotos(): Promise<PlayersSearchResponse> {
   const base = API_BASE.replace(/\/$/, '')
@@ -272,7 +189,6 @@ export async function getBarcelonaPlayersWithPhotos(): Promise<PlayersSearchResp
   const list = data.player ?? []
   const teamName = list[0]?.strTeam ?? 'FC Barcelona'
   const teamId = toNum(list[0]?.idTeam)
-  // Exclude manager/coach
   const playersOnly = list.filter(
     (p) => p.strPosition && p.strPosition.toLowerCase() !== 'manager'
   )
@@ -320,9 +236,7 @@ export async function getBarcelonaPlayersWithPhotos(): Promise<PlayersSearchResp
   }
 }
 
-/**
- * Fetch one team's players and map to ApiPlayerResponse[] (shared logic for La Liga 2).
- */
+/** Fetch one team's players from TheSportsDB and map to our format. Internal use. */
 async function fetchTeamPlayers(teamId: number, teamName: string): Promise<ApiPlayerResponse[]> {
   const base = API_BASE.replace(/\/$/, '')
   const url = `${base}/${API_KEY}/lookup_all_players.php?id=${teamId}`
@@ -382,8 +296,8 @@ async function fetchTeamPlayers(teamId: number, teamName: string): Promise<ApiPl
 }
 
 /**
- * Get La Liga 2 players from multiple teams (for home "Jugadores Destacados").
- * Uses standings to get team list, then fetches players from several teams. Max 8 teams to respect rate limits.
+ * Players from several La Liga 2 teams (top 8 in table). Use for Home and Players list.
+ * Max 8 teams to respect API rate limits.
  */
 export async function getLaLiga2PlayersFromMultipleTeams(): Promise<PlayersSearchResponse> {
   const { standings } = await getLaLigaStandings(THESPORTSDB_LALIGA2_LEAGUE_ID)
@@ -413,8 +327,7 @@ export async function getLaLiga2PlayersFromMultipleTeams(): Promise<PlayersSearc
 }
 
 /**
- * Get Real Zaragoza squad with player photos from TheSportsDB (for home page initial list - La Liga 2).
- * Free tier: 10 requests per minute for list endpoints.
+ * Real Zaragoza squad with photos (example La Liga 2 team).
  */
 export async function getLaLiga2PlayersWithPhotos(): Promise<PlayersSearchResponse> {
   const teamPlayers = await fetchTeamPlayers(toNum(THESPORTSDB_ZARAGOZA_TEAM_ID), 'Real Zaragoza')
@@ -428,13 +341,10 @@ export async function getLaLiga2PlayersWithPhotos(): Promise<PlayersSearchRespon
   }
 }
 
-/** TheSportsDB lookupplayer.php returns { players: [...] } */
-interface TheSportsDBLookupPlayerResponse {
-  players?: TheSportsDBPlayer[]
-}
+// ─── Public API: Single player ──────────────────────────────────────────────
 
 /**
- * Get a single player by TheSportsDB id (for "Analyse" when the player came from TheSportsDB list).
+ * Fetch one player by ID. Use on the player profile / "Ver perfil" page.
  */
 export async function getPlayerFromTheSportsDB(playerId: number | string): Promise<PlayersSearchResponse> {
   const base = API_BASE.replace(/\/$/, '')
@@ -507,64 +417,5 @@ export async function getPlayerFromTheSportsDB(playerId: number | string): Promi
     results: 1,
     paging: { current: 1, total: 1 },
     response,
-  }
-}
-
-/**
- * Get team squad from TheSportsDB as "transfers in" (arrivals / signings) so the club page
- * can show who joined (with strSigning info). Clicking a player goes to Analyse.
- * transfersOut not available from API.
- */
-export async function getTeamTransfersFromTheSportsDB(
-  teamId: number | string,
-  teamName?: string,
-  teamLogo?: string
-): Promise<TeamTransfersResponse> {
-  const base = API_BASE.replace(/\/$/, '')
-  const url = `${base}/${API_KEY}/lookup_all_players.php?id=${encodeURIComponent(String(teamId))}`
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error(`TheSportsDB error: ${res.status}`)
-  }
-  const text = await res.text()
-  if (!text.trim()) {
-    return {
-      teamId: toNum(String(teamId)),
-      teamName: teamName ?? '',
-      teamLogo: teamLogo ?? '',
-      transfersIn: [],
-      transfersOut: [],
-    }
-  }
-  let data: TheSportsDBPlayersResponse
-  try {
-    data = JSON.parse(text) as TheSportsDBPlayersResponse
-  } catch {
-    return {
-      teamId: toNum(String(teamId)),
-      teamName: teamName ?? '',
-      teamLogo: teamLogo ?? '',
-      transfersIn: [],
-      transfersOut: [],
-    }
-  }
-  const list = data.player ?? []
-  const name = teamName ?? list[0]?.strTeam ?? ''
-  const tid = toNum(String(teamId))
-  const transfersIn: TransferItem[] = list
-    .filter((p) => (p.strSport ?? 'Soccer') === 'Soccer' && (p.strPosition ?? '').toLowerCase() !== 'manager')
-    .map((p) => ({
-      player: { id: toNum(p.idPlayer), name: p.strPlayer ?? '—', photo: p.strThumb ?? '' },
-      fromTeam: { id: 0, name: p.strSigning?.trim() ? p.strSigning : '—', logo: '' },
-      toTeam: { id: tid, name, logo: teamLogo ?? '' },
-      type: p.strSigning ?? '',
-      date: '',
-    }))
-  return {
-    teamId: tid,
-    teamName: name,
-    teamLogo: teamLogo ?? '',
-    transfersIn,
-    transfersOut: [],
   }
 }

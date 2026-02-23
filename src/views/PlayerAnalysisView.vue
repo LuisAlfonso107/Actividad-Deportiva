@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { PlayersSearchResponse } from '../services/footballApi'
+import type { PlayersSearchResponse } from '../services/types'
 import { getPlayer, LALIGA2_LEAGUE_ID, searchPlayers } from '../services/footballApi'
-import { getPlayerFromTheSportsDB } from '../services/thesportsdb'
+import { getPlayerFromTheSportsDB } from '../services/playersApi'
 import { useApiErrorStore } from '../stores/apiError'
 
 const route = useRoute()

@@ -1,10 +1,15 @@
 /**
- * Favorites API – syncs with json-server (db.json).
- * Base URL: http://localhost:3000 (same as users/auth).
+ * Favorites API – user's saved players.
+ *
+ * Data lives in json-server (db.json) at http://localhost:3000.
+ * Same server as auth; run with: npx json-server db.json --port 3000
  */
 
 const API_BASE = 'http://localhost:3000'
 
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+/** One row in the favorites list (stored in db.json). */
 export interface FavoriteRow {
   id?: number
   playerId: number
@@ -14,6 +19,9 @@ export interface FavoriteRow {
   teamLogo?: string
 }
 
+// ─── Public API ──────────────────────────────────────────────────────────────
+
+/** Load all favorites from the server. */
 export async function getFavorites(): Promise<FavoriteRow[]> {
   const res = await fetch(`${API_BASE}/favorites`)
   if (!res.ok) throw new Error('No se pudieron cargar los favoritos')
@@ -21,6 +29,7 @@ export async function getFavorites(): Promise<FavoriteRow[]> {
   return Array.isArray(data) ? data : []
 }
 
+/** Add a player to favorites. */
 export async function addFavorite(player: {
   id: number
   name: string
@@ -43,6 +52,7 @@ export async function addFavorite(player: {
   return res.json()
 }
 
+/** Remove a favorite by its row id (from db.json). */
 export async function removeFavoriteByRowId(rowId: number): Promise<void> {
   const res = await fetch(`${API_BASE}/favorites/${rowId}`, { method: 'DELETE' })
   if (!res.ok) throw new Error('No se pudo eliminar el favorito')
