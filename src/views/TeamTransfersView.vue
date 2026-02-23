@@ -63,9 +63,16 @@ function goBack() {
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/)
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-  if (parts[0]?.length >= 2) return parts[0].slice(0, 2).toUpperCase()
-  return parts[0]?.[0]?.toUpperCase() ?? '?'
+  const first = parts[0]
+  const last = parts[parts.length - 1]
+  if (parts.length >= 2 && first != null && last != null) {
+    const a = first[0]
+    const b = last[0]
+    if (a != null && b != null) return (a + b).toUpperCase()
+  }
+  if (first != null && first.length >= 2) return first.slice(0, 2).toUpperCase()
+  const c = first?.[0]
+  return c != null ? c.toUpperCase() : '?'
 }
 
 </script>
