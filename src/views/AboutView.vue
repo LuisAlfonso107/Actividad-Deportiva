@@ -140,5 +140,5 @@
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </template>
