@@ -119,7 +119,7 @@ function parseRssToArticles(xmlText: string, sourceName: string): FootballNewsAr
       enclosure?.getAttribute("url") ||
       mediaContent?.getAttribute("url") ||
       ""
-    if (!image && description.includes("<img")) {
+    if (!image && description.indexOf("<img") !== -1) {
       const div = doc.createElement("div")
       div.innerHTML = description
       image = div.querySelector("img")?.getAttribute("src") ?? ""
@@ -201,7 +201,7 @@ export async function getFootballNews(): Promise<FootballNewsArticle[]> {
     if (!text) text = await fetchRssViaScrapingBee(feedUrl)
     if (!text) continue
 
-    const source = feedUrl.includes("marca") ? "MARCA" : feedUrl.includes("as.com") ? "AS" : "Fútbol"
+    const source = feedUrl.indexOf("marca") !== -1 ? "MARCA" : feedUrl.indexOf("as.com") !== -1 ? "AS" : "Fútbol"
     const articles = parseRssToArticles(text, source)
     if (articles.length > 0) return articles
   }
