@@ -7,7 +7,7 @@ Utilizamos **Git Flow simplificado** con las siguientes ramas:
 ### Ramas Principales
 
 - **`main`**: Código en producción (siempre estable).
-- **`develop`**: Rama de integración para desarrollo activo.
+- **`premain`**: Rama de integración para desarrollo activo.
 
 ### Ramas de Trabajo
 
