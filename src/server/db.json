@@ -6,6 +6,11 @@
       "password": "Hola123",
       "name": "Yeremi",
       "phone": "988546"
+    },
+    {
+      "id": "c627",
+      "email": "luisalfonso.garcia@estudioenpenascal.com",
+      "password": "A1234567a"
     }
   ],
   "favorites": [
@@ -16,6 +21,33 @@
       "photo": "https://r2.thesportsdb.com/images/media/player/thumb/u5vyfo1659965385.jpg",
       "team": "Deportivo de La Coruña",
       "teamLogo": ""
+    }
+  ],
+  "lists": [
+    {
+      "id": "1",
+      "userId": 2308,
+      "name": "Favoritos Euroleague",
+      "players": [
+        12,
+        45,
+        89
+      ],
+      "createdAt": "2025-03-10T14:30:00Z"
+    },
+    {
+      "id": "0456",
+      "userId": "c627",
+      "name": "delanteros",
+      "players": [],
+      "createdAt": "2026-02-27T09:13:56.790Z"
+    },
+    {
+      "id": "5718",
+      "userId": "c627",
+      "name": "defensa",
+      "players": [],
+      "createdAt": "2026-02-27T09:17:29.796Z"
     }
   ]
 }

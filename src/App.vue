@@ -52,6 +52,9 @@ watch([isAuthenticated, user], () => {
           </RouterLink>
         </div>
         <div class="flex items-center space-x-6">
+          <RouterLink to="/mi-lista" class="text-slate-500 hover:text-primary transition-colors" title="Mi Lista">
+            <span class="material-symbols-rounded">folder</span>
+          </RouterLink>
           <RouterLink to="/favorites" class="text-slate-500 hover:text-primary transition-colors">
             <span class="material-symbols-rounded">favorite</span>
           </RouterLink>
@@ -100,6 +103,13 @@ watch([isAuthenticated, user], () => {
               active-class="text-primary border-b-2 border-primary"
             >
               CLASIFICACIÓN
+            </RouterLink>
+            <RouterLink 
+              to="/mi-lista" 
+              class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors h-12 flex items-center"
+              active-class="text-primary border-b-2 border-primary"
+            >
+              MI LISTA
             </RouterLink>
           </div>
           <div class="flex items-center space-x-4">
