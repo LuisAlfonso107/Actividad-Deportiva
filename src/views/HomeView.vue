@@ -4,11 +4,23 @@ import { useRouter } from 'vue-router'
 import type { ApiPlayerResponse } from '../services/playersApi'
 import { getLaLiga2PlayersFromMultipleTeams, searchPlayersLaLiga2 } from '../services/playersApi'
 import { useApiErrorStore } from '../stores/apiError'
+import { useAuthStore } from '../stores/auth'
 import { useFavoritesStore } from '../stores/favorites'
+import { storeToRefs } from 'pinia'
+import ModalSelectLista from '../components/ModalSelectLista.vue'
 
 const router = useRouter()
 const favoritesStore = useFavoritesStore()
 const apiErrorStore = useApiErrorStore()
+const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
+
+const showModalSelectLista = ref(false)
+const playerIdForListModal = ref(0)
+function openAddToListModal(playerId: number) {
+  playerIdForListModal.value = playerId
+  showModalSelectLista.value = true
+}
 
 const searchQuery = ref('')
 const searching = ref(false)
@@ -316,6 +328,15 @@ function getPlayerStats(item: ApiPlayerResponse) {
                 <span class="material-symbols-rounded">favorite</span>
                 ELIMINAR DE FAVORITOS
               </button>
+              <button
+                v-if="isAuthenticated"
+                type="button"
+                class="w-full border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                @click="openAddToListModal(item.player.id)"
+              >
+                <span class="material-symbols-rounded">playlist_add</span>
+                AÑADIR A MI LISTA
+              </button>
             </div>
           </div>
         </div>
@@ -407,11 +428,26 @@ function getPlayerStats(item: ApiPlayerResponse) {
                   <span class="material-symbols-rounded">delete</span>
                   ELIMINAR
                 </button>
+                <button
+                  v-if="isAuthenticated"
+                  type="button"
+                  class="w-full border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                  @click="openAddToListModal(p.id)"
+                >
+                  <span class="material-symbols-rounded">playlist_add</span>
+                  AÑADIR A MI LISTA
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+
+    <ModalSelectLista
+      :model-value="showModalSelectLista"
+      :player-id="playerIdForListModal"
+      @update:model-value="showModalSelectLista = $event"
+    />
   </div>
 </template>

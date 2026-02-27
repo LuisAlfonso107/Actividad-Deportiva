@@ -4,8 +4,8 @@ import * as listsApi from '../services/listsApi'
 import { useAuthStore } from './auth'
 
 export interface PlayerList {
-  id?: number
-  userId: number
+  id?: string
+  userId: string
   name: string
   players: number[]
   createdAt: string
@@ -25,7 +25,13 @@ export const useListsStore = defineStore('lists', () => {
     error.value = null
 
     try {
-      lists.value = await listsApi.getLists(authStore.user.id)
+      // Intentar primero filtrar por usuario actual (id es string en json-server)
+      let data = await listsApi.getLists(String(authStore.user.id))
+      // Fallback opcional: si no hay listas asociadas, podemos mostrar todas
+      if (!data.length) {
+        data = await listsApi.getAllLists()
+      }
+      lists.value = data
     } catch (e) {
       error.value = 'No se pudieron cargar las listas'
       lists.value = []
@@ -34,7 +40,7 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
-  async function fetchListById(listId: number) {
+  async function fetchListById(listId: string) {
     loading.value = true
     error.value = null
 
@@ -57,7 +63,7 @@ export const useListsStore = defineStore('lists', () => {
 
     try {
       const newList = await listsApi.createList({
-        userId: authStore.user.id,
+        userId: String(authStore.user.id),
         name,
         players: [],
         createdAt: new Date().toISOString(),
@@ -72,7 +78,7 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
-  async function addPlayerToList(listId: number, playerId: number) {
+  async function addPlayerToList(listId: string, playerId: number) {
     const list = lists.value.find((l) => l.id === listId)
     if (!list) return false
 
@@ -104,7 +110,7 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
-  async function removePlayerFromList(listId: number, playerId: number) {
+  async function removePlayerFromList(listId: string, playerId: number) {
     const list = lists.value.find((l) => l.id === listId)
     if (!list) return false
 
@@ -131,7 +137,7 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
-  async function deleteList(listId: number) {
+  async function deleteList(listId: string) {
     loading.value = true
     error.value = null
 
@@ -150,7 +156,7 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
-  async function updateListName(listId: number, newName: string) {
+  async function updateListName(listId: string, newName: string) {
     const list = lists.value.find((l) => l.id === listId)
     if (!list) return false
 

@@ -7,9 +7,11 @@ import AppFooter from './components/AppFooter.vue'
 import { useApiErrorStore } from './stores/apiError'
 import { useAuthStore } from './stores/auth'
 import { useFavoritesStore } from './stores/favorites'
+import { useToastStore } from './stores/toast'
 import { useRegisterAlert } from './composable/useRegisterAlert'
 
 const apiError = useApiErrorStore()
+const toastStore = useToastStore()
 const authStore = useAuthStore()
 const favoritesStore = useFavoritesStore()
 
@@ -18,6 +20,7 @@ onMounted(() => {
 })
 const { user, isAuthenticated } = storeToRefs(authStore)
 const { message: apiErrorMessage } = storeToRefs(apiError)
+const { message: toastMessage, type: toastType, visible: toastVisible } = storeToRefs(toastStore)
 
 const {
   showRegisterAlert,
@@ -38,6 +41,19 @@ watch([isAuthenticated, user], () => {
 </script>
 
 <template>
+  <!-- Toast -->
+  <div
+    v-if="toastVisible && toastMessage"
+    class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium max-w-md"
+    :class="{
+      'bg-emerald-600': toastType === 'success',
+      'bg-red-600': toastType === 'error',
+      'bg-slate-700': toastType === 'info'
+    }"
+  >
+    {{ toastMessage }}
+  </div>
+
   <div v-if="apiErrorMessage" class="fixed top-0 left-0 right-0 z-50 bg-red-600 text-white p-4 text-center">
     <span class="mr-4">{{ apiErrorMessage }}</span>
     <button type="button" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded" @click="apiError.clearError">×</button>

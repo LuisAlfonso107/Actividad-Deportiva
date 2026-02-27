@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useSearchPlayers } from '../composable/useSearchPlayers'
+import { useAuthStore } from '../stores/auth'
 import { useFavoritesStore } from '../stores/favorites'
 import type { ApiPlayerResponse } from '../services/playersApi'
+import ModalSelectLista from '../components/ModalSelectLista.vue'
 
 const router = useRouter()
 const favoritesStore = useFavoritesStore()
+const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
+
+const showModalSelectLista = ref(false)
+const playerIdForListModal = ref(0)
+function openAddToListModal(playerId: number) {
+  playerIdForListModal.value = playerId
+  showModalSelectLista.value = true
+}
 
 const {
   searchQuery,
@@ -222,13 +234,23 @@ function isFavorite(id: number) {
               </span>
             </div>
             
-            <button
-              @click.stop="isFavorite(item.player.id) ? removeFavorite(item.player.id) : addToFavorites(item)"
-              class="absolute top-3 right-3 p-1.5 bg-white/90 rounded-full hover:bg-white transition-colors shadow-sm"
-              :class="{ 'text-red-500': isFavorite(item.player.id), 'text-slate-400': !isFavorite(item.player.id) }"
-            >
-              <span class="material-symbols-rounded text-lg">{{ isFavorite(item.player.id) ? 'favorite' : 'favorite_border' }}</span>
-            </button>
+            <div class="absolute top-3 right-3 flex items-center gap-1">
+              <button
+                v-if="isAuthenticated"
+                @click.stop="openAddToListModal(item.player.id)"
+                class="p-1.5 bg-white/90 rounded-full hover:bg-white transition-colors shadow-sm text-slate-500"
+                title="Añadir a mi lista"
+              >
+                <span class="material-symbols-rounded text-lg">playlist_add</span>
+              </button>
+              <button
+                @click.stop="isFavorite(item.player.id) ? removeFavorite(item.player.id) : addToFavorites(item)"
+                class="p-1.5 bg-white/90 rounded-full hover:bg-white transition-colors shadow-sm"
+                :class="{ 'text-red-500': isFavorite(item.player.id), 'text-slate-400': !isFavorite(item.player.id) }"
+              >
+                <span class="material-symbols-rounded text-lg">{{ isFavorite(item.player.id) ? 'favorite' : 'favorite_border' }}</span>
+              </button>
+            </div>
           </div>
           
           <div class="p-4">
@@ -255,18 +277,26 @@ function isFavorite(id: number) {
               </div>
             </div>
             
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
               <button
                 @click="viewPlayer(item.player.id)"
-                class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-lg text-sm transition-colors"
+                class="flex-1 min-w-0 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-lg text-sm transition-colors"
               >
                 Ver Perfil
               </button>
               <button
                 @click="analysePlayer(item.player.id)"
-                class="flex-1 bg-primary hover:bg-emerald-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-colors"
+                class="flex-1 min-w-0 bg-primary hover:bg-emerald-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-colors"
               >
                 Analizar
+              </button>
+              <button
+                v-if="isAuthenticated"
+                @click="openAddToListModal(item.player.id)"
+                class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-1"
+              >
+                <span class="material-symbols-rounded text-lg">playlist_add</span>
+                Añadir a mi lista
               </button>
             </div>
           </div>
@@ -278,6 +308,12 @@ function isFavorite(id: number) {
         <h3 class="text-xl font-semibold text-slate-600 mt-4">No se encontraron jugadores</h3>
         <p class="text-slate-500 mt-2">Intenta ajustando los filtros o términos de búsqueda</p>
       </div>
+
+    <ModalSelectLista
+      :model-value="showModalSelectLista"
+      :player-id="playerIdForListModal"
+      @update:model-value="showModalSelectLista = $event"
+    />
     </main>
   </div>
 </template>

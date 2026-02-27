@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import type { PlayersSearchResponse } from '../services/types'
 import { getPlayer, LALIGA2_LEAGUE_ID, searchPlayers } from '../services/footballApi'
 import { getPlayerFromTheSportsDB } from '../services/playersApi'
 import { useApiErrorStore } from '../stores/apiError'
+import { useAuthStore } from '../stores/auth'
+import { useFavoritesStore } from '../stores/favorites'
+import ModalSelectLista from '../components/ModalSelectLista.vue'
 
 const route = useRoute()
 const router = useRouter()
 const apiErrorStore = useApiErrorStore()
+const authStore = useAuthStore()
+const favoritesStore = useFavoritesStore()
+const { isAuthenticated } = storeToRefs(authStore)
+
+const showModalSelectLista = ref(false)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<PlayersSearchResponse | null>(null)
@@ -116,6 +125,31 @@ function initials(name: string): string {
     return parts[0][0].toUpperCase()
   }
   return '?'
+}
+
+function addToFavorites() {
+  if (!player.value?.player) return
+  const pl = player.value.player
+  const team = player.value.statistics?.[0]?.team
+  favoritesStore.add({
+    id: pl.id,
+    name: pl.name,
+    photo: pl.photo,
+    team: team?.name,
+    teamLogo: team?.logo,
+  })
+}
+
+function removeFromFavorites() {
+  if (p.value) favoritesStore.remove(p.value.id)
+}
+
+function isFavorite(): boolean {
+  return p.value ? favoritesStore.isFavorite(p.value.id) : false
+}
+
+function openAddToListModal() {
+  showModalSelectLista.value = true
 }
 </script>
 
@@ -301,6 +335,42 @@ function initials(name: string): string {
 
           <!-- Right Column -->
           <div class="space-y-8">
+            <!-- Actions: Favorites + Add to list -->
+            <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Acciones</h2>
+              </div>
+              <div class="p-6 space-y-3">
+                <button
+                  v-if="!isFavorite()"
+                  type="button"
+                  class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                  @click="addToFavorites()"
+                >
+                  <span class="material-symbols-rounded">favorite_border</span>
+                  Añadir a favoritos
+                </button>
+                <button
+                  v-else
+                  type="button"
+                  class="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                  @click="removeFromFavorites()"
+                >
+                  <span class="material-symbols-rounded">favorite</span>
+                  Quitar de favoritos
+                </button>
+                <button
+                  v-if="isAuthenticated"
+                  type="button"
+                  class="w-full flex items-center justify-center gap-2 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold py-3 px-4 rounded-lg transition-colors"
+                  @click="openAddToListModal()"
+                >
+                  <span class="material-symbols-rounded">playlist_add</span>
+                  Añadir a mi lista
+                </button>
+              </div>
+            </section>
+
             <!-- Personal Information -->
             <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
               <div class="p-6 border-b border-slate-200 dark:border-slate-800">
@@ -357,6 +427,13 @@ function initials(name: string): string {
           </div>
         </div>
       </main>
+
+      <ModalSelectLista
+        v-if="p"
+        :model-value="showModalSelectLista"
+        :player-id="p.id"
+        @update:model-value="showModalSelectLista = $event"
+      />
     </template>
   </div>
 </template>

@@ -25,29 +25,21 @@
   ],
   "lists": [
     {
-      "id": "1",
-      "userId": 2308,
-      "name": "Favoritos Euroleague",
+      "id": "effa",
+      "userId": "2308",
+      "name": "fed",
       "players": [
-        12,
-        45,
-        89
+        34175167,
+        34229841
       ],
-      "createdAt": "2025-03-10T14:30:00Z"
+      "createdAt": "2026-02-27T09:58:23.288Z"
     },
     {
-      "id": "0456",
-      "userId": "c627",
-      "name": "delanteros",
+      "id": "77ff",
+      "userId": "2308",
+      "name": "test",
       "players": [],
-      "createdAt": "2026-02-27T09:13:56.790Z"
-    },
-    {
-      "id": "5718",
-      "userId": "c627",
-      "name": "defensa",
-      "players": [],
-      "createdAt": "2026-02-27T09:17:29.796Z"
+      "createdAt": "2026-02-27T09:59:39.954Z"
     }
   ]
 }

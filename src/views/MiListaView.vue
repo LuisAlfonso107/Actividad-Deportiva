@@ -1,32 +1,75 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useListsStore } from '../stores/lists'
 import { useAuthStore } from '../stores/auth'
+import { useToastStore } from '../stores/toast'
+import { getPlayerFromTheSportsDB } from '../services/playersApi'
+import type { ApiPlayerResponse } from '../services/types'
+import ModalBuscarJugador from '../components/ModalBuscarJugador.vue'
 
 const router = useRouter()
 const route = useRoute()
 const listsStore = useListsStore()
 const authStore = useAuthStore()
+const toastStore = useToastStore()
 
 const showCreateModal = ref(false)
+const showAddPlayerModal = ref(false)
 const newListName = ref('')
 const showDeleteModal = ref(false)
 const listToDelete = ref<number | null>(null)
 const showEditNameModal = ref(false)
-const listToEdit = ref<{ id: number; name: string } | null>(null)
+const listToEdit = ref<{ id: string; name: string } | null>(null)
 const editName = ref('')
 
-const isDetailView = computed(() => route.params.id !== undefined)
-const listId = computed(() => Number(route.params.id))
+const listPlayers = ref<ApiPlayerResponse[]>([])
+const listPlayersLoading = ref(false)
+const listPlayersError = ref<string | null>(null)
 
-onMounted(async () => {
-  if (isDetailView.value) {
-    await listsStore.fetchListById(listId.value)
-  } else {
-    await listsStore.fetchLists()
-  }
-})
+const isDetailView = computed(() => route.params.id !== undefined)
+const listId = computed(() => String(route.params.id ?? ''))
+
+// Cargar listas o detalle según la ruta actual y cuando cambie (sin necesidad de refrescar la página)
+watch(
+  () => route.params.id,
+  async (id) => {
+    if (id != null && id !== '') {
+      await listsStore.fetchListById(String(id))
+    } else {
+      await listsStore.fetchLists()
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => listsStore.currentList?.players.slice() ?? [],
+  async (ids) => {
+    listPlayers.value = []
+    listPlayersError.value = null
+    if (!ids || ids.length === 0) return
+    try {
+      listPlayersLoading.value = true
+      const results = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await getPlayerFromTheSportsDB(id)
+            return res.response?.[0] ?? null
+          } catch {
+            return null
+          }
+        }),
+      )
+      listPlayers.value = results.filter((p): p is ApiPlayerResponse => p != null)
+    } catch (e) {
+      listPlayersError.value = e instanceof Error ? e.message : 'No se pudieron cargar los jugadores de la lista.'
+    } finally {
+      listPlayersLoading.value = false
+    }
+  },
+  { immediate: true },
+)
 
 async function handleCreateList() {
   if (newListName.value.trim().length < 3) return
@@ -38,7 +81,7 @@ async function handleCreateList() {
   }
 }
 
-function openDeleteModal(listId: number) {
+function openDeleteModal(listId: string) {
   listToDelete.value = listId
   showDeleteModal.value = true
 }
@@ -66,8 +109,36 @@ async function confirmEditName() {
   }
 }
 
-function goToListDetail(listId: number) {
+function goToListDetail(listId: string) {
   router.push(`/mi-lista/${listId}`)
+}
+
+async function onPlayerSelected(playerId: number) {
+  const id = listId.value
+  if (!id || !listsStore.currentList) return
+  const ok = await listsStore.addPlayerToList(id, playerId)
+  if (ok) {
+    await listsStore.fetchListById(id)
+    toastStore.showSuccess('Jugador añadido a la lista')
+  } else if (listsStore.error) {
+    toastStore.showError(listsStore.error)
+  }
+}
+
+function analyseFromList(playerId: number) {
+  router.push({ name: 'player-analysis', params: { id: String(playerId) } })
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter((p) => p.length > 0)
+  if (parts.length >= 2) {
+    const a = parts[0]?.[0]
+    const b = parts[parts.length - 1]?.[0]
+    if (a && b) return (a + b).toUpperCase()
+  }
+  if (parts[0] && parts[0].length >= 2) return parts[0].slice(0, 2).toUpperCase()
+  if (parts[0]?.[0]) return parts[0][0].toUpperCase()
+  return '?'
 }
 </script>
 
@@ -80,11 +151,20 @@ function goToListDetail(listId: number) {
           <p class="text-slate-600 dark:text-slate-400">Gestiona tus listas personalizadas de jugadores</p>
         </div>
         <button
+          v-if="!isDetailView"
           @click="showCreateModal = true"
           class="bg-primary hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
         >
           <span class="material-symbols-rounded">add</span>
           Crear nueva lista
+        </button>
+        <button
+          v-else-if="listsStore.currentList"
+          @click="showAddPlayerModal = true"
+          class="bg-primary hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+        >
+          <span class="material-symbols-rounded">person_add</span>
+          Añadir jugador
         </button>
       </div>
 
@@ -152,18 +232,83 @@ function goToListDetail(listId: number) {
               {{ listsStore.currentList.players.length }} jugador{{ listsStore.currentList.players.length !== 1 ? 'es' : '' }}
             </p>
           </div>
+          <button
+            @click="showAddPlayerModal = true"
+            class="bg-primary hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+          >
+            <span class="material-symbols-rounded">person_add</span>
+            Añadir jugador
+          </button>
         </div>
 
         <div v-if="listsStore.currentList.players.length === 0" class="text-center py-12">
           <span class="material-symbols-rounded text-5xl text-slate-300">person_add</span>
-          <p class="text-slate-500 mt-4">Esta lista está vacía. Agrega jugadores desde la vista de jugadores.</p>
-          <router-link to="/players" class="inline-block mt-4 bg-primary hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-            Explorar Jugadores
-          </router-link>
+          <p class="text-slate-500 mt-4">Esta lista está vacía. Añade jugadores con el botón de arriba.</p>
+          <button
+            @click="showAddPlayerModal = true"
+            class="mt-4 bg-primary hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors inline-flex items-center gap-2"
+          >
+            <span class="material-symbols-rounded">person_add</span>
+            Añadir jugador
+          </button>
         </div>
 
-        <div v-else class="text-sm text-slate-500">
-          IDs de jugadores en esta lista: {{ listsStore.currentList.players.join(', ') }}
+        <div v-else class="mt-6">
+          <p class="text-sm text-slate-500 mb-4">
+            {{ listPlayers.length }} jugador{{ listPlayers.length !== 1 ? 'es' : '' }} en esta lista
+          </p>
+
+          <div v-if="listPlayersLoading" class="text-center py-8 text-slate-500">
+            <span class="material-symbols-rounded animate-spin text-4xl">sync</span>
+            <p class="mt-2">Cargando jugadores de la lista...</p>
+          </div>
+
+          <p v-else-if="listPlayersError" class="text-red-500 text-sm py-4">
+            {{ listPlayersError }}
+          </p>
+
+          <div
+            v-else
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            <div
+              v-for="item in listPlayers"
+              :key="item.player.id"
+              class="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-800 transform hover:-translate-y-1 cursor-pointer"
+              @click="analyseFromList(item.player.id)"
+            >
+              <div class="relative aspect-[3/4] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <img
+                  v-if="item.player.photo"
+                  :src="item.player.photo"
+                  :alt="item.player.name"
+                  class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                />
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800"
+                >
+                  <span class="text-5xl font-black text-slate-400 dark:text-slate-500">
+                    {{ initials(item.player.name) }}
+                  </span>
+                </div>
+
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 class="text-white font-black text-2xl leading-tight mb-1">
+                    {{ item.player.name.toUpperCase() }}
+                  </h3>
+                  <div class="flex items-center gap-2">
+                    <span class="text-primary font-bold text-sm">
+                      {{ item.statistics?.[0]?.team?.name || 'La Liga 2' }}
+                    </span>
+                    <span class="text-white/70 text-xs">• En mi lista</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -248,5 +393,11 @@ function goToListDetail(listId: number) {
         </div>
       </div>
     </div>
+
+    <ModalBuscarJugador
+      :model-value="showAddPlayerModal"
+      @update:model-value="showAddPlayerModal = $event"
+      @select="onPlayerSelected"
+    />
   </div>
 </template>
