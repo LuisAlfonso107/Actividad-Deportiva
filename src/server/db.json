@@ -6,15 +6,20 @@
       "password": "Hola123",
       "name": "Yeremi",
       "phone": "988546"
+    },
+    {
+      "id": "7430",
+      "email": "yeremijesus9@gmail.com",
+      "password": "yeremi1234"
     }
   ],
   "favorites": [
     {
-      "id": "f44b",
-      "playerId": 34195193,
-      "name": "Alti",
-      "photo": "https://r2.thesportsdb.com/images/media/player/thumb/u5vyfo1659965385.jpg",
-      "team": "Deportivo de La Coruña",
+      "id": "a4f3",
+      "playerId": 34175167,
+      "name": "Andrés Martín",
+      "photo": "https://r2.thesportsdb.com/images/media/player/thumb/utuqbx1630065861.jpg",
+      "team": "Santander",
       "teamLogo": ""
     }
   ]
