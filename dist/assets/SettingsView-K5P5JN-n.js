@@ -1,0 +1,1 @@
+import{d as t,b as s,e as n,y as r,n as o}from"./index-rT4u_YTt.js";const a={class:"min-h-screen flex items-center justify-center"},l=t({__name:"SettingsView",setup(i){return r().push("/profile"),(m,e)=>(o(),s("div",a,[...e[0]||(e[0]=[n("span",{class:"material-symbols-rounded animate-spin text-4xl text-primary"},"sync",-1)])]))}});export{l as default};

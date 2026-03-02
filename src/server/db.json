@@ -11,7 +11,40 @@
       "id": "7430",
       "email": "yeremijesus9@gmail.com",
       "password": "yeremi1234"
+    },
+    {
+      "id": "c627",
+      "email": "luisalfonso.garcia@estudioenpenascal.com",
+      "password": "A1234567a"
     }
   ],
-  "favorites": []
+  "favorites": [
+    {
+      "id": "f44b",
+      "playerId": 34195193,
+      "name": "Alti",
+      "photo": "https://r2.thesportsdb.com/images/media/player/thumb/u5vyfo1659965385.jpg",
+      "team": "Deportivo de La Coruña",
+      "teamLogo": ""
+    }
+  ],
+  "lists": [
+    {
+      "id": "effa",
+      "userId": "2308",
+      "name": "fed",
+      "players": [
+        34175167,
+        34229841
+      ],
+      "createdAt": "2026-02-27T09:58:23.288Z"
+    },
+    {
+      "id": "77ff",
+      "userId": "2308",
+      "name": "test",
+      "players": [],
+      "createdAt": "2026-02-27T09:59:39.954Z"
+    }
+  ]
 }

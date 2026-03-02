@@ -84,6 +84,18 @@ const router = createRouter({
       component: () => import('../views/SettingsView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/mi-lista',
+      name: 'mi-lista',
+      component: () => import('../views/MiListaView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/mi-lista/:id',
+      name: 'mi-lista-detalle',
+      component: () => import('../views/MiListaView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

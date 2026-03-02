@@ -1,9 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '../stores/auth'
 import { useFavoritesStore } from '../stores/favorites'
+import ModalSelectLista from '../components/ModalSelectLista.vue'
 
 const favoritesStore = useFavoritesStore()
+const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
 const favorites = computed(() => favoritesStore.favorites)
+
+const showModalSelectLista = ref(false)
+const playerIdForListModal = ref(0)
+function openAddToListModal(playerId: number) {
+  playerIdForListModal.value = playerId
+  showModalSelectLista.value = true
+}
 
 function removeFavorite(id: number) {
   favoritesStore.remove(id)
@@ -79,17 +91,32 @@ function initials(name: string): string {
             <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-1">{{ player.name }}</h3>
             <p class="text-slate-500 dark:text-slate-400 text-sm mb-3">{{ player.team || 'Sin equipo' }}</p>
             
-            <div class="flex gap-2">
-              <button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-2 px-3 rounded-lg text-sm transition-colors">
+            <div class="flex flex-wrap gap-2">
+              <button class="flex-1 min-w-0 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-2 px-3 rounded-lg text-sm transition-colors">
                 Ver Perfil
               </button>
-              <button class="flex-1 bg-primary hover:bg-emerald-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-colors">
+              <button class="flex-1 min-w-0 bg-primary hover:bg-emerald-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-colors">
                 Analizar
+              </button>
+              <button
+                v-if="isAuthenticated"
+                type="button"
+                class="w-full flex items-center justify-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-2 px-3 rounded-lg text-sm transition-colors"
+                @click="openAddToListModal(player.id)"
+              >
+                <span class="material-symbols-rounded text-lg">playlist_add</span>
+                Añadir a mi lista
               </button>
             </div>
           </div>
         </div>
       </div>
+
+    <ModalSelectLista
+      :model-value="showModalSelectLista"
+      :player-id="playerIdForListModal"
+      @update:model-value="showModalSelectLista = $event"
+    />
     </main>
   </div>
 </template>
