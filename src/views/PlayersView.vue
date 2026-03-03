@@ -74,21 +74,21 @@ function isFavorite(id: number) {
 </script>
 
 <template>
-  <div class="font-body bg-slate-50 text-slate-900">
+  <div class="font-body bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
 
-    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[113px] z-40">
+    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-[113px] z-40">
       <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-4">
         <div class="lg:hidden space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
               <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Posición</label>
-              <select v-model="selectedPosition" class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+              <select v-model="selectedPosition" class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary text-slate-900 dark:text-white">
                 <option v-for="position in positions" :key="position" :value="position">{{ position }}</option>
               </select>
             </div>
             <div class="space-y-1">
               <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Edad</label>
-              <select v-model="selectedAge" class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+              <select v-model="selectedAge" class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary text-slate-900 dark:text-white">
                 <option v-for="age in ages" :key="age" :value="age">{{ age }}</option>
               </select>
             </div>
@@ -100,7 +100,7 @@ function isFavorite(id: number) {
                 v-model="searchQuery"
                 type="text"
                 placeholder="Nombre del jugador..."
-                class="w-full border-slate-200 rounded-lg text-sm font-semibold pl-8 pr-3 py-2 focus:ring-primary focus:border-primary"
+                class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold pl-8 pr-3 py-2 focus:ring-primary focus:border-primary text-slate-900 dark:text-white"
                 @keydown.enter="runSearch"
               />
               <span class="material-symbols-rounded absolute left-2 top-2 text-slate-400 text-sm">search</span>
@@ -109,7 +109,7 @@ function isFavorite(id: number) {
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
               <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Liga</label>
-              <select v-model="selectedLeague" class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+              <select v-model="selectedLeague" class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary text-slate-900 dark:text-white">
                 <option v-for="league in leagues" :key="league" :value="league">{{ league }}</option>
               </select>
             </div>
@@ -128,19 +128,19 @@ function isFavorite(id: number) {
         <div class="hidden lg:grid grid-cols-5 gap-4">
           <div class="space-y-1">
             <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Posición</label>
-            <select v-model="selectedPosition" class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+            <select v-model="selectedPosition" class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary text-slate-900 dark:text-white">
               <option v-for="position in positions" :key="position" :value="position">{{ position }}</option>
             </select>
           </div>
           <div class="space-y-1">
             <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Edad</label>
-            <select v-model="selectedAge" class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+            <select v-model="selectedAge" class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary text-slate-900 dark:text-white">
               <option v-for="age in ages" :key="age" :value="age">{{ age }}</option>
             </select>
           </div>
           <div class="space-y-1">
             <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">Liga</label>
-            <select v-model="selectedLeague" class="w-full border-slate-200 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary">
+            <select v-model="selectedLeague" class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold focus:ring-primary focus:border-primary text-slate-900 dark:text-white">
               <option v-for="league in leagues" :key="league" :value="league">{{ league }}</option>
             </select>
           </div>
@@ -151,7 +151,7 @@ function isFavorite(id: number) {
                 v-model="searchQuery"
                 type="text"
                 placeholder="Nombre del jugador..."
-                class="w-full border-slate-200 rounded-lg text-sm font-semibold pl-8 pr-3 py-2 focus:ring-primary focus:border-primary"
+                class="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold pl-8 pr-3 py-2 focus:ring-primary focus:border-primary text-slate-900 dark:text-white"
                 @keydown.enter="runSearch"
               />
               <span class="material-symbols-rounded absolute left-2 top-2 text-slate-400 text-sm">search</span>
@@ -176,13 +176,13 @@ function isFavorite(id: number) {
       </div>
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900">
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
             {{ searchQuery ? `Resultados para "${searchQuery}"` : 'Jugadores La Liga 2' }}
           </h2>
-          <p class="text-slate-500 text-sm mt-1">{{ filteredResults.length }} jugadores</p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ filteredResults.length }} jugadores</p>
         </div>
         <div class="flex items-center gap-4">
-          <select class="border-slate-200 rounded-lg text-sm font-semibold">
+          <select class="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-900 dark:text-white">
             <option>Más relevantes</option>
             <option>Nombre A-Z</option>
             <option>Nombre Z-A</option>
@@ -193,15 +193,15 @@ function isFavorite(id: number) {
       </div>
 
       <div v-if="searching || initialLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        <div v-for="i in 8" :key="i" class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200">
+        <div v-for="i in 8" :key="i" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-800">
           <div class="animate-pulse">
-            <div class="h-48 bg-slate-200"></div>
+            <div class="h-48 bg-slate-200 dark:bg-slate-800"></div>
             <div class="p-4 space-y-3">
-              <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-              <div class="h-3 bg-slate-200 rounded w-1/2"></div>
-              <div class="flex justify-between">
-                <div class="h-6 bg-slate-200 rounded w-16"></div>
-                <div class="h-6 bg-slate-200 rounded w-16"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="h-8 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                <div class="h-8 bg-slate-200 dark:bg-slate-800 rounded"></div>
               </div>
             </div>
           </div>
@@ -212,9 +212,9 @@ function isFavorite(id: number) {
         <div
           v-for="item in filteredResults"
           :key="item.player.id"
-          class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200 hover:shadow-lg transition-all duration-300 group"
+          class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-lg dark:hover:shadow-primary/5 transition-all duration-300 group"
         >
-          <div class="relative h-48 bg-slate-100 overflow-hidden">
+          <div class="relative h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden">
             <img
               v-if="item.player.photo"
               :src="item.player.photo"
@@ -223,9 +223,9 @@ function isFavorite(id: number) {
             />
             <div
               v-else
-              class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300"
+              class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800"
             >
-              <span class="text-4xl font-black text-slate-400">{{ initials(item.player.name) }}</span>
+              <span class="text-4xl font-black text-slate-400 dark:text-slate-500">{{ initials(item.player.name) }}</span>
             </div>
             
             <div class="absolute top-3 left-3">
@@ -238,15 +238,15 @@ function isFavorite(id: number) {
               <button
                 v-if="isAuthenticated"
                 @click.stop="openAddToListModal(item.player.id)"
-                class="p-1.5 bg-white/90 rounded-full hover:bg-white transition-colors shadow-sm text-slate-500"
+                class="p-1.5 bg-white/90 dark:bg-slate-900/90 rounded-full hover:bg-white dark:hover:bg-slate-900 transition-colors shadow-sm text-slate-500 dark:text-slate-400"
                 title="Añadir a mi lista"
               >
                 <span class="material-symbols-rounded text-lg">playlist_add</span>
               </button>
               <button
                 @click.stop="isFavorite(item.player.id) ? removeFavorite(item.player.id) : addToFavorites(item)"
-                class="p-1.5 bg-white/90 rounded-full hover:bg-white transition-colors shadow-sm"
-                :class="{ 'text-red-500': isFavorite(item.player.id), 'text-slate-400': !isFavorite(item.player.id) }"
+                class="p-1.5 bg-white/90 dark:bg-slate-900/90 rounded-full hover:bg-white dark:hover:bg-slate-900 transition-colors shadow-sm"
+                :class="{ 'text-red-500': isFavorite(item.player.id), 'text-slate-400 dark:text-slate-500': !isFavorite(item.player.id) }"
               >
                 <span class="material-symbols-rounded text-lg">{{ isFavorite(item.player.id) ? 'favorite' : 'favorite_border' }}</span>
               </button>
@@ -254,33 +254,33 @@ function isFavorite(id: number) {
           </div>
           
           <div class="p-4">
-            <h3 class="font-bold text-lg text-slate-900 mb-1">{{ item.player.name }}</h3>
+            <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-1">{{ item.player.name }}</h3>
             <div class="flex items-center gap-2 mb-3">
               <span class="inline-block px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full">
                 {{ getPlayerLeague(item) }}
               </span>
-              <span class="text-slate-500 text-sm">{{ getPlayerTeam(item) }}</span>
+              <span class="text-slate-500 dark:text-slate-400 text-sm">{{ getPlayerTeam(item) }}</span>
             </div>
             
             <div class="grid grid-cols-3 gap-2 mb-4 text-center">
-              <div class="bg-slate-50 rounded-lg p-2">
-                <div class="font-black text-lg text-slate-900">{{ getPlayerStats(item).goals }}</div>
-                <div class="text-xs text-slate-500">Goles</div>
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2">
+                <div class="font-black text-lg text-slate-900 dark:text-white">{{ getPlayerStats(item).goals }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Goles</div>
               </div>
-              <div class="bg-slate-50 rounded-lg p-2">
-                <div class="font-black text-lg text-slate-900">{{ getPlayerStats(item).assists }}</div>
-                <div class="text-xs text-slate-500">Asist.</div>
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2">
+                <div class="font-black text-lg text-slate-900 dark:text-white">{{ getPlayerStats(item).assists }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Asist.</div>
               </div>
-              <div class="bg-slate-50 rounded-lg p-2">
-                <div class="font-black text-lg text-slate-900">{{ getPlayerStats(item).physical }}</div>
-                <div class="text-xs text-slate-500">Físico</div>
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2">
+                <div class="font-black text-lg text-slate-900 dark:text-white">{{ getPlayerStats(item).physical }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Físico</div>
               </div>
             </div>
             
             <div class="flex flex-wrap gap-2">
               <button
                 @click="viewPlayer(item.player.id)"
-                class="flex-1 min-w-0 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-lg text-sm transition-colors"
+                class="flex-1 min-w-0 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-2 px-3 rounded-lg text-sm transition-colors"
               >
                 Ver Perfil
               </button>
@@ -304,9 +304,9 @@ function isFavorite(id: number) {
       </div>
 
       <div v-else class="text-center py-16">
-        <span class="material-symbols-rounded text-6xl text-slate-300">search_off</span>
-        <h3 class="text-xl font-semibold text-slate-600 mt-4">No se encontraron jugadores</h3>
-        <p class="text-slate-500 mt-2">Intenta ajustando los filtros o términos de búsqueda</p>
+        <span class="material-symbols-rounded text-6xl text-slate-300 dark:text-slate-700">search_off</span>
+        <h3 class="text-xl font-semibold text-slate-600 dark:text-slate-400 mt-4">No se encontraron jugadores</h3>
+        <p class="text-slate-500 dark:text-slate-500 mt-2">Intenta ajustando los filtros o términos de búsqueda</p>
       </div>
 
     <ModalSelectLista
