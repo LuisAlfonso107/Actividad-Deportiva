@@ -24,7 +24,7 @@ import { RouterLink } from 'vue-router';
       <!-- Qué hacemos -->
       <section class="mb-20">
         <h2 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-8 text-slate-900 dark:text-white text-center">
-          Este proyecto ha sido creado con <span class="text-black font-black">Achraf RZZ</span>, <span class="text-black font-black">Luis Alfonso</span> y <span class="text-black font-black">YEREMI JESUS</span>
+          Este proyecto ha sido creado con <span class="text-black font-black">Achraf RZZ</span>, <span class="text-black font-black">Luis Alfonso</span> y <span class="text-black font-black">YEREN</span>
         </h2>
         <h2 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-8 text-slate-900 dark:text-white text-left">
           Qué hacemos

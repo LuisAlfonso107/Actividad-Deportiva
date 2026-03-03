@@ -16,17 +16,14 @@ import { RouterLink } from 'vue-router';
         <p class="text-xl text-slate-300 max-w-2xl mx-auto font-light">
           Plataforma de scouting y fútbol centrada en jugadores, clasificación y mercado, con foco en LaLiga 2.
         </p>
-      
+       
       </div>
     </section>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
       <!-- Qué hacemos -->
       <section class="mb-20">
-        <h2 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-8 text-slate-900 dark:text-white text-center">
-          Este proyecto ha sido creado con <span class="text-black font-black">Achraf RZZ</span>, <span class="text-black font-black">Luis Alfonso</span> y <span class="text-black font-black">YEREMI JESUS</span>
-        </h2>
-        <h2 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-8 text-slate-900 dark:text-white text-left">
+        <h2 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-8 text-slate-900 dark:text-white">
           Qué hacemos
         </h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
@@ -41,7 +38,9 @@ import { RouterLink } from 'vue-router';
               clasificación de LaLiga 2, plantillas y fichajes por equipo, noticias y mercado. Pensada para ojeadores,
               aficionados y usuarios que quieran seguir jugadores y equipos de Segunda División y contexto español.
             </p>
-          
+            <p class="text-slate-400 text-sm mt-6 font-medium">
+          Creado por <span class="text-white font-semibold">Achraf RZZ</span>, <span class="text-white font-semibold">Luis Alfonso</span> y <span class="text-white font-semibold">YEREMI</span>
+        </p>
           </div>
           <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6">

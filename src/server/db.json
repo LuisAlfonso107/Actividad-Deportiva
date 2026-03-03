@@ -43,7 +43,9 @@
       "id": "77ff",
       "userId": "2308",
       "name": "test",
-      "players": [],
+      "players": [
+        34169620
+      ],
       "createdAt": "2026-02-27T09:59:39.954Z"
     }
   ]

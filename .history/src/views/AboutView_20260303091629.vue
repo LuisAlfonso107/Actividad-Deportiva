@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
 </script>
 
 <template>
@@ -16,56 +16,43 @@ import { RouterLink } from 'vue-router';
         <p class="text-xl text-slate-300 max-w-2xl mx-auto font-light">
           Plataforma de scouting y fútbol centrada en jugadores, clasificación y mercado, con foco en LaLiga 2.
         </p>
-      
+        <p class="text-slate-400 text-sm mt-6 font-medium">
+          Creado por <span class="text-white font-semibold">Achraf RZZ</span>, <span class="text-white font-semibold">Luis Alfonso</span> y <span class="text-white font-semibold">YEREMI</span>
+        </p>
       </div>
     </section>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
       <!-- Qué hacemos -->
-      <section class="mb-20">
-        <h2 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-8 text-slate-900 dark:text-white text-center">
-          Este proyecto ha sido creado con <span class="text-black font-black">Achraf RZZ</span>, <span class="text-black font-black">Luis Alfonso</span> y <span class="text-black font-black">YEREMI JESUS</span>
-        </h2>
-        <h2 class="text-2xl md:text-3xl font-display font-black uppercase tracking-tight mb-8 text-slate-900 dark:text-white text-left">
+      <section class="mb-16">
+        <h2 class="text-xl md:text-2xl font-display font-black uppercase tracking-tight mb-4 text-slate-900 dark:text-white">
           Qué hacemos
         </h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
-              <span class="material-symbols-rounded text-primary text-3xl">sports_soccer</span>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+          <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 flex gap-4">
+            <div class="w-10 h-10 flex-shrink-0 bg-primary/10 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-rounded text-primary text-2xl">sports_soccer</span>
             </div>
-            
-            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Actividad principal</h3>
-            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
-              La aplicación es una plataforma de scouting y consulta de fútbol: búsqueda y análisis de jugadores,
-              clasificación de LaLiga 2, plantillas y fichajes por equipo, noticias y mercado. Pensada para ojeadores,
-              aficionados y usuarios que quieran seguir jugadores y equipos de Segunda División y contexto español.
-            </p>
-          
+            <div>
+              <h3 class="font-bold text-slate-900 dark:text-white mb-1 text-sm">Actividad principal</h3>
+              <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                Plataforma de scouting y fútbol: jugadores, clasificación LaLiga 2, plantillas, noticias y mercado. Para ojeadores y aficionados de Segunda División.
+              </p>
+            </div>
           </div>
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
-              <span class="material-symbols-rounded text-primary text-3xl">insights</span>
+          <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 flex gap-4">
+            <div class="w-10 h-10 flex-shrink-0 bg-primary/10 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-rounded text-primary text-2xl">insights</span>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Funcionalidades</h3>
-            <ul class="text-slate-600 dark:text-slate-300 space-y-2">
-              <li class="flex items-center gap-2">
-                <span class="material-symbols-rounded text-primary text-lg">check_circle</span>
-                Búsqueda y ficha de jugadores (TheSportsDB, football-data.org)
-              </li>
-              <li class="flex items-center gap-2">
-                <span class="material-symbols-rounded text-primary text-lg">check_circle</span>
-                Clasificación LaLiga 2 y enlace a plantilla/fichajes por equipo
-              </li>
-              <li class="flex items-center gap-2">
-                <span class="material-symbols-rounded text-primary text-lg">check_circle</span>
-                Favoritos y listas personalizadas (backend local json-server)
-              </li>
-              <li class="flex items-center gap-2">
-                <span class="material-symbols-rounded text-primary text-lg">check_circle</span>
-                Noticias de fútbol vía RSS y ScrapingBee
-              </li>
-            </ul>
+            <div>
+              <h3 class="font-bold text-slate-900 dark:text-white mb-2 text-sm">Funcionalidades</h3>
+              <ul class="text-slate-600 dark:text-slate-300 text-sm space-y-1">
+                <li class="flex items-center gap-2"><span class="material-symbols-rounded text-primary text-base">check_circle</span> Jugadores (TheSportsDB, football-data.org)</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-rounded text-primary text-base">check_circle</span> Clasificación LaLiga 2 y plantilla/fichajes</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-rounded text-primary text-base">check_circle</span> Favoritos y listas (json-server)</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-rounded text-primary text-base">check_circle</span> Noticias vía RSS y ScrapingBee</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>

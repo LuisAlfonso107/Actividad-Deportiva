@@ -18,7 +18,7 @@ const showCreateModal = ref(false)
 const showAddPlayerModal = ref(false)
 const newListName = ref('')
 const showDeleteModal = ref(false)
-const listToDelete = ref<number | null>(null)
+const listToDelete = ref<string | null>(null)
 const showEditNameModal = ref(false)
 const listToEdit = ref<{ id: string; name: string } | null>(null)
 const editName = ref('')
@@ -94,7 +94,7 @@ async function confirmDelete() {
   }
 }
 
-function openEditNameModal(list: { id: number; name: string }) {
+function openEditNameModal(list: { id: string; name: string }) {
   listToEdit.value = list
   editName.value = list.name
   showEditNameModal.value = true
