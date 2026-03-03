@@ -13,6 +13,9 @@ interface RegisterErrors {
   confirmPassword?: string
 }
 
+/**
+ * Provides reactive state and actions for the user registration form.
+ */
 export function useRegisterForm() {
   const router = useRouter()
 
@@ -24,15 +27,25 @@ export function useRegisterForm() {
   const successMessage = ref('')
   const errorMessage = ref('')
 
+  /**
+   * Validates email format using a basic regular expression.
+   */
   function validateEmail(emailValue: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(emailValue)
   }
 
+  /**
+   * Validates password strength using a minimum length rule.
+   */
   function validatePassword(passwordValue: string): boolean {
     return passwordValue.length >= 6
   }
 
+  /**
+   * Validates all registration fields and sets field-level errors.
+   * Returns true when the form data is valid.
+   */
   function validateForm(): boolean {
     errors.value = {}
     
@@ -57,6 +70,10 @@ export function useRegisterForm() {
     return Object.keys(errors.value).length === 0
   }
 
+  /**
+   * Submits a new user registration to the local API.
+   * Returns true on success and sets user-facing messages for UI feedback.
+   */
   async function handleRegister(): Promise<boolean> {
     errorMessage.value = ''
     successMessage.value = ''
@@ -108,6 +125,9 @@ export function useRegisterForm() {
     }
   }
 
+  /**
+   * Resets all form fields, validation errors, and feedback messages.
+   */
   function resetForm() {
     email.value = ''
     password.value = ''

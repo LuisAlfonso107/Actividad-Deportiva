@@ -4,7 +4,7 @@
       "id": "2308",
       "email": "hola@gmail.com",
       "password": "Hola123",
-      "name": "Yeremi",
+      "name": "Juan",
       "phone": "988546"
     },
     {
@@ -15,7 +15,14 @@
     {
       "id": "c627",
       "email": "luisalfonso.garcia@estudioenpenascal.com",
-      "password": "A1234567a"
+      "password": "A1234567a",
+      "name": "Achaf",
+      "phone": "51645821"
+    },
+    {
+      "id": "d025",
+      "email": "jhjh@gmail.com",
+      "password": "a1234567"
     }
   ],
   "favorites": [
@@ -26,6 +33,22 @@
       "photo": "https://r2.thesportsdb.com/images/media/player/thumb/u5vyfo1659965385.jpg",
       "team": "Deportivo de La Coruña",
       "teamLogo": ""
+    },
+    {
+      "id": "f4d1",
+      "playerId": 34220190,
+      "name": "Facundo Gonzales",
+      "photo": "https://r2.thesportsdb.com/images/media/player/thumb/687zx11692741199.jpg",
+      "team": "Santander",
+      "teamLogo": ""
+    },
+    {
+      "id": "8795",
+      "playerId": 34175167,
+      "name": "Andrés Martín",
+      "photo": "https://r2.thesportsdb.com/images/media/player/thumb/utuqbx1630065861.jpg",
+      "team": "Santander",
+      "teamLogo": ""
     }
   ],
   "lists": [
@@ -35,18 +58,46 @@
       "name": "fed",
       "players": [
         34175167,
-        34229841
+        34229841,
+        34220190
       ],
       "createdAt": "2026-02-27T09:58:23.288Z"
     },
     {
-      "id": "77ff",
+      "id": "d4c8",
       "userId": "2308",
-      "name": "test",
+      "name": "fgjfgj",
       "players": [
-        34169620
+        34229841
       ],
-      "createdAt": "2026-02-27T09:59:39.954Z"
+      "createdAt": "2026-03-03T08:46:06.609Z"
+    },
+    {
+      "id": "fbec",
+      "userId": "2308",
+      "name": "Andres",
+      "players": [
+        34175167,
+        34191482
+      ],
+      "createdAt": "2026-03-03T10:30:46.512Z"
+    },
+    {
+      "id": "e726",
+      "userId": "c627",
+      "name": "defensa",
+      "players": [
+        34146226,
+        34195193
+      ],
+      "createdAt": "2026-03-03T12:31:19.068Z"
+    },
+    {
+      "id": "c5fd",
+      "userId": "c627",
+      "name": "delanteros",
+      "players": [],
+      "createdAt": "2026-03-03T12:34:29.180Z"
     }
   ]
 }

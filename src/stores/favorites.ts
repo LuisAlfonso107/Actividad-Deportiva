@@ -11,6 +11,7 @@ export interface FavoritePlayer {
   /** Server row id (json-server) for DELETE */
   _rowId?: number
 }
+// esta funcniones son para guardar y cargar 
 
 const STORAGE_KEY = 'favorite-players'
 

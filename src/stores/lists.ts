@@ -17,6 +17,10 @@ export const useListsStore = defineStore('lists', () => {
   const error = ref<string | null>(null)
   const currentList = ref<PlayerList | null>(null)
 
+  /**
+   * Loads lists for the authenticated user.
+   * Falls back to all lists when the user has no associated records.
+   */
   async function fetchLists() {
     const authStore = useAuthStore()
     if (!authStore.user) return
@@ -25,9 +29,9 @@ export const useListsStore = defineStore('lists', () => {
     error.value = null
 
     try {
-      // Intentar primero filtrar por usuario actual (id es string en json-server)
+      // First try filtering by current user (json-server stores ids as strings).
       let data = await listsApi.getLists(String(authStore.user.id))
-      // Fallback opcional: si no hay listas asociadas, podemos mostrar todas
+      // Optional fallback: if no user lists are found, load all lists.
       if (!data.length) {
         data = await listsApi.getAllLists()
       }
@@ -40,6 +44,9 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  /**
+   * Loads a single list by id and stores it as the current active list.
+   */
   async function fetchListById(listId: string) {
     loading.value = true
     error.value = null
@@ -54,6 +61,10 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  /**
+   * Creates a new empty list for the authenticated user.
+   * Returns the created list, or null when creation fails.
+   */
   async function createList(name: string) {
     const authStore = useAuthStore()
     if (!authStore.user) return null
@@ -78,6 +89,10 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  /**
+   * Adds a player id to an existing list.
+   * Prevents duplicate player entries and returns success status.
+   */
   async function addPlayerToList(listId: string, playerId: number) {
     const list = lists.value.find((l) => l.id === listId)
     if (!list) return false
@@ -110,6 +125,10 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  /**
+   * Removes a player id from an existing list.
+   * Returns true when the update is persisted successfully.
+   */
   async function removePlayerFromList(listId: string, playerId: number) {
     const list = lists.value.find((l) => l.id === listId)
     if (!list) return false
@@ -137,6 +156,9 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  /**
+   * Deletes a list by id and keeps local store state in sync.
+   */
   async function deleteList(listId: string) {
     loading.value = true
     error.value = null
@@ -156,6 +178,10 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  /**
+   * Updates the name of an existing list.
+   * Also updates the currently selected list when it matches the same id.
+   */
   async function updateListName(listId: string, newName: string) {
     const list = lists.value.find((l) => l.id === listId)
     if (!list) return false
@@ -181,6 +207,9 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
+  /**
+   * Resets the current error message in the store.
+   */
   function clearError() {
     error.value = null
   }

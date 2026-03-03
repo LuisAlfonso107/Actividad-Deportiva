@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+//Guardar el último mensaje de error que ocurrió en cualquier llamada a la API
+//Detectar si ese error fue por límite de tasa / cuota excedida (rate limit, quota exceeded, 429 Too Many Requests, etc.)
+
 export const useApiErrorStore = defineStore('apiError', () => {
   const message = ref<string | null>(null)
   const isLimitError = ref(false)

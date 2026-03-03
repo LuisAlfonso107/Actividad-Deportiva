@@ -14,7 +14,9 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<string | null>(null)
 
   const isAuthenticated = computed(() => !!user.value)
+  
 
+  //Si existe → lo carga en user.value para que la persona siga "logueada"
   function init() {
     const storedUser = localStorage.getItem('user')
     if (storedUser) {
@@ -25,6 +27,8 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
   }
+
+  // funcion para iniciar sesión
 
   async function login(email: string, password: string): Promise<boolean> {
     loading.value = true
@@ -62,6 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // funcion para cerrar sesión
   function logout() {
     user.value = null
     localStorage.removeItem('user')

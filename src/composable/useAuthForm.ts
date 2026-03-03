@@ -7,6 +7,9 @@ interface LoginErrors {
   password?: string
 }
 
+/**
+ * Provides reactive state and actions for the login form.
+ */
 export function useAuthForm() {
   const router = useRouter()
   const authStore = useAuthStore()
@@ -18,6 +21,10 @@ export function useAuthForm() {
   const loading = computed(() => authStore.loading)
   const errorMessage = computed(() => authStore.error)
 
+  /**
+   * Validates required login fields and stores field-level errors.
+   * Returns true when the form is valid.
+   */
   function validateForm(): boolean {
     errors.value = {}
     
@@ -32,6 +39,10 @@ export function useAuthForm() {
     return Object.keys(errors.value).length === 0
   }
 
+  /**
+   * Submits credentials through the auth store.
+   * Redirects to the settings page after a successful login.
+   */
   async function handleLogin(): Promise<boolean> {
     if (!validateForm()) {
       return false
@@ -46,6 +57,9 @@ export function useAuthForm() {
     return success
   }
 
+  /**
+   * Clears all form inputs and validation errors.
+   */
   function resetForm() {
     email.value = ''
     password.value = ''

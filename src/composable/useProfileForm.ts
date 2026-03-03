@@ -12,6 +12,9 @@ interface UserData {
   favoritePlayers?: number[]
 }
 
+/**
+ * Provides reactive profile state and actions for loading, editing, and saving user data.
+ */
 export function useProfileForm() {
   const router = useRouter()
   const authStore = useAuthStore()
@@ -30,6 +33,10 @@ export function useProfileForm() {
     birthDate: '',
   })
 
+  /**
+   * Loads the authenticated user profile from the local API.
+   * Redirects to login if there is no active session.
+   */
   async function loadUserData() {
     if (!authStore.user) {
       router.push('/login')
@@ -55,6 +62,9 @@ export function useProfileForm() {
     }
   }
 
+  /**
+   * Enables edit mode and initializes the editable object from current user data.
+   */
   function startEditing() {
     if (userData.value) {
       editedData.value = { ...userData.value }
@@ -62,6 +72,9 @@ export function useProfileForm() {
     isEditing.value = true
   }
 
+  /**
+   * Cancels edit mode and restores editable fields to the last persisted user data.
+   */
   function cancelEditing() {
     isEditing.value = false
     if (userData.value) {
@@ -69,6 +82,10 @@ export function useProfileForm() {
     }
   }
 
+  /**
+   * Persists edited profile data to the API and synchronizes store/localStorage values.
+   * Returns true when saving succeeds.
+   */
   async function saveChanges(): Promise<boolean> {
     if (!authStore.user) return false
 
@@ -102,11 +119,18 @@ export function useProfileForm() {
     }
   }
 
+  /**
+   * Ends the current session and navigates the user to the login page.
+   */
   function handleLogout() {
     authStore.logout()
     router.push('/login')
   }
 
+  /**
+   * Generates avatar initials from a full name string.
+   * Uses first+last initials when available, otherwise falls back to the first characters.
+   */
   function initials(name: string): string {
     const parts = name.trim().split(/\s+/)
     const first = parts[0]

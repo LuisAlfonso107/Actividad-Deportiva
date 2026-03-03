@@ -1,3 +1,4 @@
+
 import { describe, it, expect, beforeEach } from "vitest";
 import HomeView from "./HomeView.vue";
 import { mount } from "@vue/test-utils";
